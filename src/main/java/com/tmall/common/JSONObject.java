@@ -1,16 +1,45 @@
 package com.tmall.common;
 
-import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.serializer.SerializerFeature;
 
-import java.util.ArrayList;
+import com.alibaba.fastjson.annotation.JSONField;
 
 public class JSONObject {
+    private static final int SUCCESS_CODE = 0;
+    
     private String msg;
 
     private Object data;
 
     private int code;
+
+    @JSONField(serialize = false)
+    private boolean isSuccess;
+
+    public JSONObject(String msg, Object data, int code) {
+        this.msg = msg;
+        this.data = data;
+        this.code = code;
+    }
+
+    public static JSONObject Success(String msg, Object data) {
+        return new JSONObject(msg, data, SUCCESS_CODE);
+    }
+
+    public static JSONObject SuccessWithMessage(String msg) {
+        return new JSONObject(msg, null, SUCCESS_CODE);
+    }
+
+    public static JSONObject error(String msg,int code) {
+        return new JSONObject(msg, null, code);
+    }
+    
+    public boolean isSuccess() {
+        return isSuccess;
+    }
+
+    public void setSuccess(boolean success) {
+        isSuccess = success;
+    }
 
     public String getMsg() {
         return msg;
@@ -44,26 +73,4 @@ public class JSONObject {
                 ", code=" + code +
                 '}';
     }
-
-    public static void main(String args[]) {
-        /*ArrayList<Object> list = new ArrayList<>();
-        ArrayList<Object> list1 = new ArrayList<>();
-        ArrayList<Object> list2 = new ArrayList<>();
-
-        list.add("list");
-        list.add(list1);
-        list1.add("list1");
-        list1.add(list2);
-        list2.add("list2");*/
-
-        JSONObject object = new JSONObject();
-        /*object.setData();*/
-        /*object.setMsg("success");
-        object.setData(new ArrayList<>());*/
-
-        Object parse = JSON.toJSONString(object, SerializerFeature.WriteNullStringAsEmpty);
-        System.out.println(parse.toString());
-    }
-
-
 }
