@@ -4,6 +4,7 @@ package com.tmall.common;
 import com.alibaba.fastjson.annotation.JSONField;
 
 public class JSONObject {
+    
     private static final int SUCCESS_CODE = 0;
     
     private String msg;
@@ -11,9 +12,11 @@ public class JSONObject {
     private Object data;
 
     private int code;
-
+    
     @JSONField(serialize = false)
     private boolean isSuccess;
+
+    public JSONObject(){}
 
     public JSONObject(String msg, Object data, int code) {
         this.msg = msg;

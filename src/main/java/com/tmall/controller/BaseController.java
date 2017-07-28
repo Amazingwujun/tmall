@@ -25,8 +25,9 @@ public class BaseController {
      * @return
      */
     @ExceptionHandler({AuthenticationException.class})
-    public String authenticationException(AuthenticationException e,HttpServletRequest request, HttpServletResponse response) {
-        return null;
+    public JSONObject authenticationException(AuthenticationException e,HttpServletRequest request, HttpServletResponse response) {
+        logger.info(e.getMessage());
+        return JSONObject.error(e.getMessage(),1);
     }
 
     /**
@@ -36,9 +37,9 @@ public class BaseController {
      */
     @ExceptionHandler({UnauthenticatedException.class})
     public JSONObject unAuthenticationException(UnauthenticatedException e) {
+        logger.info(e.getMessage());
 
-
-        return null;
+        return JSONObject.error(e.getMessage(),1);
     }
 
 
