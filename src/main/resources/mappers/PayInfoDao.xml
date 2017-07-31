@@ -1,0 +1,130 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.tmall.dao.PayInfoDao" >
+  <resultMap id="BaseResultMap" type="com.tmall.entity.po.PayInfo" >
+    <constructor >
+      <idArg column="id" jdbcType="INTEGER" javaType="java.lang.Integer" />
+      <arg column="userId" jdbcType="INTEGER" javaType="java.lang.Integer" />
+      <arg column="orderNo" jdbcType="VARCHAR" javaType="java.lang.String" />
+      <arg column="platformStatus" jdbcType="VARCHAR" javaType="java.lang.String" />
+      <arg column="platformOrderNo" jdbcType="VARCHAR" javaType="java.lang.String" />
+      <arg column="payPlatform" jdbcType="INTEGER" javaType="java.lang.Integer" />
+      <arg column="createTime" jdbcType="TIMESTAMP" javaType="java.util.Date" />
+      <arg column="updateTime" jdbcType="TIMESTAMP" javaType="java.util.Date" />
+    </constructor>
+  </resultMap>
+  <sql id="Base_Column_List" >
+    id, userId, orderNo, platformStatus, platformOrderNo, payPlatform, createTime, updateTime
+  </sql>
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Integer" >
+    select 
+    <include refid="Base_Column_List" />
+    from tmall_payInfo
+    where id = #{id,jdbcType=INTEGER}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer" >
+    delete from tmall_payInfo
+    where id = #{id,jdbcType=INTEGER}
+  </delete>
+  <insert id="insert" parameterType="com.tmall.entity.po.PayInfo" >
+    insert into tmall_payInfo (id, userId, orderNo, 
+      platformStatus, platformOrderNo, payPlatform, 
+      createTime, updateTime)
+    values (#{id,jdbcType=INTEGER}, #{userId,jdbcType=INTEGER}, #{orderNo,jdbcType=VARCHAR}, 
+      #{platformStatus,jdbcType=VARCHAR}, #{platformOrderNo,jdbcType=VARCHAR}, #{payPlatform,jdbcType=INTEGER}, 
+      #{createTime,jdbcType=TIMESTAMP}, #{updateTime,jdbcType=TIMESTAMP})
+  </insert>
+  <insert id="insertSelective" parameterType="com.tmall.entity.po.PayInfo" >
+    insert into tmall_payInfo
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        id,
+      </if>
+      <if test="userId != null" >
+        userId,
+      </if>
+      <if test="orderNo != null" >
+        orderNo,
+      </if>
+      <if test="platformStatus != null" >
+        platformStatus,
+      </if>
+      <if test="platformOrderNo != null" >
+        platformOrderNo,
+      </if>
+      <if test="payPlatform != null" >
+        payPlatform,
+      </if>
+      <if test="createTime != null" >
+        createTime,
+      </if>
+      <if test="updateTime != null" >
+        updateTime,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        #{id,jdbcType=INTEGER},
+      </if>
+      <if test="userId != null" >
+        #{userId,jdbcType=INTEGER},
+      </if>
+      <if test="orderNo != null" >
+        #{orderNo,jdbcType=VARCHAR},
+      </if>
+      <if test="platformStatus != null" >
+        #{platformStatus,jdbcType=VARCHAR},
+      </if>
+      <if test="platformOrderNo != null" >
+        #{platformOrderNo,jdbcType=VARCHAR},
+      </if>
+      <if test="payPlatform != null" >
+        #{payPlatform,jdbcType=INTEGER},
+      </if>
+      <if test="createTime != null" >
+        #{createTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="updateTime != null" >
+        #{updateTime,jdbcType=TIMESTAMP},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.tmall.entity.po.PayInfo" >
+    update tmall_payInfo
+    <set >
+      <if test="userId != null" >
+        userId = #{userId,jdbcType=INTEGER},
+      </if>
+      <if test="orderNo != null" >
+        orderNo = #{orderNo,jdbcType=VARCHAR},
+      </if>
+      <if test="platformStatus != null" >
+        platformStatus = #{platformStatus,jdbcType=VARCHAR},
+      </if>
+      <if test="platformOrderNo != null" >
+        platformOrderNo = #{platformOrderNo,jdbcType=VARCHAR},
+      </if>
+      <if test="payPlatform != null" >
+        payPlatform = #{payPlatform,jdbcType=INTEGER},
+      </if>
+      <if test="createTime != null" >
+        createTime = #{createTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="updateTime != null" >
+        updateTime = #{updateTime,jdbcType=TIMESTAMP},
+      </if>
+    </set>
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.tmall.entity.po.PayInfo" >
+    update tmall_payInfo
+    set userId = #{userId,jdbcType=INTEGER},
+      orderNo = #{orderNo,jdbcType=VARCHAR},
+      platformStatus = #{platformStatus,jdbcType=VARCHAR},
+      platformOrderNo = #{platformOrderNo,jdbcType=VARCHAR},
+      payPlatform = #{payPlatform,jdbcType=INTEGER},
+      createTime = #{createTime,jdbcType=TIMESTAMP},
+      updateTime = #{updateTime,jdbcType=TIMESTAMP}
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+</mapper>

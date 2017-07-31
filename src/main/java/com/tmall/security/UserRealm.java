@@ -1,4 +1,4 @@
-package com.tmall.common;
+package com.tmall.security;
 
 import com.tmall.entity.po.User;
 import com.tmall.service.IUserService;

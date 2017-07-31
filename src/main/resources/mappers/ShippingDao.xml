@@ -1,0 +1,166 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.tmall.dao.ShippingDao" >
+  <resultMap id="BaseResultMap" type="com.tmall.entity.po.Shipping" >
+    <constructor >
+      <idArg column="id" jdbcType="INTEGER" javaType="java.lang.Integer" />
+      <arg column="userId" jdbcType="INTEGER" javaType="java.lang.Integer" />
+      <arg column="receiverName" jdbcType="VARCHAR" javaType="java.lang.String" />
+      <arg column="receiverPhone" jdbcType="VARCHAR" javaType="java.lang.String" />
+      <arg column="receiverProvince" jdbcType="VARCHAR" javaType="java.lang.String" />
+      <arg column="receiverCity" jdbcType="VARCHAR" javaType="java.lang.String" />
+      <arg column="receiverDistrict" jdbcType="VARCHAR" javaType="java.lang.String" />
+      <arg column="receiverAddress" jdbcType="VARCHAR" javaType="java.lang.String" />
+      <arg column="receiverZip" jdbcType="VARCHAR" javaType="java.lang.String" />
+      <arg column="createTime" jdbcType="TIMESTAMP" javaType="java.util.Date" />
+      <arg column="updateTime" jdbcType="TIMESTAMP" javaType="java.util.Date" />
+    </constructor>
+  </resultMap>
+  <sql id="Base_Column_List" >
+    id, userId, receiverName, receiverPhone, receiverProvince, receiverCity, receiverDistrict, 
+    receiverAddress, receiverZip, createTime, updateTime
+  </sql>
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Integer" >
+    select 
+    <include refid="Base_Column_List" />
+    from tmall_shipping
+    where id = #{id,jdbcType=INTEGER}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer" >
+    delete from tmall_shipping
+    where id = #{id,jdbcType=INTEGER}
+  </delete>
+  <insert id="insert" parameterType="com.tmall.entity.po.Shipping" >
+    insert into tmall_shipping (id, userId, receiverName, 
+      receiverPhone, receiverProvince, receiverCity, 
+      receiverDistrict, receiverAddress, receiverZip, 
+      createTime, updateTime)
+    values (#{id,jdbcType=INTEGER}, #{userId,jdbcType=INTEGER}, #{receiverName,jdbcType=VARCHAR}, 
+      #{receiverPhone,jdbcType=VARCHAR}, #{receiverProvince,jdbcType=VARCHAR}, #{receiverCity,jdbcType=VARCHAR}, 
+      #{receiverDistrict,jdbcType=VARCHAR}, #{receiverAddress,jdbcType=VARCHAR}, #{receiverZip,jdbcType=VARCHAR}, 
+      #{createTime,jdbcType=TIMESTAMP}, #{updateTime,jdbcType=TIMESTAMP})
+  </insert>
+  <insert id="insertSelective" parameterType="com.tmall.entity.po.Shipping" >
+    insert into tmall_shipping
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        id,
+      </if>
+      <if test="userId != null" >
+        userId,
+      </if>
+      <if test="receiverName != null" >
+        receiverName,
+      </if>
+      <if test="receiverPhone != null" >
+        receiverPhone,
+      </if>
+      <if test="receiverProvince != null" >
+        receiverProvince,
+      </if>
+      <if test="receiverCity != null" >
+        receiverCity,
+      </if>
+      <if test="receiverDistrict != null" >
+        receiverDistrict,
+      </if>
+      <if test="receiverAddress != null" >
+        receiverAddress,
+      </if>
+      <if test="receiverZip != null" >
+        receiverZip,
+      </if>
+      <if test="createTime != null" >
+        createTime,
+      </if>
+      <if test="updateTime != null" >
+        updateTime,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        #{id,jdbcType=INTEGER},
+      </if>
+      <if test="userId != null" >
+        #{userId,jdbcType=INTEGER},
+      </if>
+      <if test="receiverName != null" >
+        #{receiverName,jdbcType=VARCHAR},
+      </if>
+      <if test="receiverPhone != null" >
+        #{receiverPhone,jdbcType=VARCHAR},
+      </if>
+      <if test="receiverProvince != null" >
+        #{receiverProvince,jdbcType=VARCHAR},
+      </if>
+      <if test="receiverCity != null" >
+        #{receiverCity,jdbcType=VARCHAR},
+      </if>
+      <if test="receiverDistrict != null" >
+        #{receiverDistrict,jdbcType=VARCHAR},
+      </if>
+      <if test="receiverAddress != null" >
+        #{receiverAddress,jdbcType=VARCHAR},
+      </if>
+      <if test="receiverZip != null" >
+        #{receiverZip,jdbcType=VARCHAR},
+      </if>
+      <if test="createTime != null" >
+        #{createTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="updateTime != null" >
+        #{updateTime,jdbcType=TIMESTAMP},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.tmall.entity.po.Shipping" >
+    update tmall_shipping
+    <set >
+      <if test="userId != null" >
+        userId = #{userId,jdbcType=INTEGER},
+      </if>
+      <if test="receiverName != null" >
+        receiverName = #{receiverName,jdbcType=VARCHAR},
+      </if>
+      <if test="receiverPhone != null" >
+        receiverPhone = #{receiverPhone,jdbcType=VARCHAR},
+      </if>
+      <if test="receiverProvince != null" >
+        receiverProvince = #{receiverProvince,jdbcType=VARCHAR},
+      </if>
+      <if test="receiverCity != null" >
+        receiverCity = #{receiverCity,jdbcType=VARCHAR},
+      </if>
+      <if test="receiverDistrict != null" >
+        receiverDistrict = #{receiverDistrict,jdbcType=VARCHAR},
+      </if>
+      <if test="receiverAddress != null" >
+        receiverAddress = #{receiverAddress,jdbcType=VARCHAR},
+      </if>
+      <if test="receiverZip != null" >
+        receiverZip = #{receiverZip,jdbcType=VARCHAR},
+      </if>
+      <if test="createTime != null" >
+        createTime = #{createTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="updateTime != null" >
+        updateTime = #{updateTime,jdbcType=TIMESTAMP},
+      </if>
+    </set>
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.tmall.entity.po.Shipping" >
+    update tmall_shipping
+    set userId = #{userId,jdbcType=INTEGER},
+      receiverName = #{receiverName,jdbcType=VARCHAR},
+      receiverPhone = #{receiverPhone,jdbcType=VARCHAR},
+      receiverProvince = #{receiverProvince,jdbcType=VARCHAR},
+      receiverCity = #{receiverCity,jdbcType=VARCHAR},
+      receiverDistrict = #{receiverDistrict,jdbcType=VARCHAR},
+      receiverAddress = #{receiverAddress,jdbcType=VARCHAR},
+      receiverZip = #{receiverZip,jdbcType=VARCHAR},
+      createTime = #{createTime,jdbcType=TIMESTAMP},
+      updateTime = #{updateTime,jdbcType=TIMESTAMP}
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+</mapper>
