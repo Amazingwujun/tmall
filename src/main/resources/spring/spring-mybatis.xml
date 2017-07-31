@@ -7,11 +7,6 @@
 		http://www.springframework.org/schema/context
 		http://www.springframework.org/schema/context/spring-context-4.2.xsd">
 
-    <!-- 扫描路径不扫描controller -->
-    <context:component-scan base-package="com.tmall">
-        <context:exclude-filter type="annotation" expression="org.springframework.stereotype.Controller" />
-    </context:component-scan>
-
     <!-- 加载配置文件 -->
     <context:property-placeholder location="classpath:jdbc.properties"/>
 
@@ -36,7 +31,7 @@
         <property name="dataSource" ref="dataSource"/>
         <property name="mapperLocations">
             <array>
-                <value>classpath:mappers/*.xml</value>
+                <value>classpath:mappers/*Dao.xml</value>
             </array>
         </property>
 

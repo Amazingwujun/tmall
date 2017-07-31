@@ -8,40 +8,22 @@
       <arg column="name" jdbcType="VARCHAR" javaType="java.lang.String" />
       <arg column="subTitle" jdbcType="VARCHAR" javaType="java.lang.String" />
       <arg column="mainImage" jdbcType="VARCHAR" javaType="java.lang.String" />
+      <arg column="detail" jdbcType="VARCHAR" javaType="java.lang.String" />
+      <arg column="subImage" jdbcType="VARCHAR" javaType="java.lang.String" />
       <arg column="price" jdbcType="DECIMAL" javaType="java.math.BigDecimal" />
       <arg column="stock" jdbcType="INTEGER" javaType="java.lang.Integer" />
       <arg column="status" jdbcType="INTEGER" javaType="java.lang.Integer" />
       <arg column="createTime" jdbcType="TIMESTAMP" javaType="java.util.Date" />
       <arg column="updateTime" jdbcType="TIMESTAMP" javaType="java.util.Date" />
-    </constructor>
-  </resultMap>
-  <resultMap id="ResultMapWithBLOBs" type="com.tmall.entity.po.ProductWithBLOBs" >
-    <constructor >
-      <idArg column="id" jdbcType="INTEGER" javaType="java.lang.Integer" />
-      <arg column="categoryId" jdbcType="INTEGER" javaType="java.lang.Integer" />
-      <arg column="name" jdbcType="VARCHAR" javaType="java.lang.String" />
-      <arg column="subTitle" jdbcType="VARCHAR" javaType="java.lang.String" />
-      <arg column="mainImage" jdbcType="VARCHAR" javaType="java.lang.String" />
-      <arg column="price" jdbcType="DECIMAL" javaType="java.math.BigDecimal" />
-      <arg column="stock" jdbcType="INTEGER" javaType="java.lang.Integer" />
-      <arg column="status" jdbcType="INTEGER" javaType="java.lang.Integer" />
-      <arg column="createTime" jdbcType="TIMESTAMP" javaType="java.util.Date" />
-      <arg column="updateTime" jdbcType="TIMESTAMP" javaType="java.util.Date" />
-      <arg column="detail" jdbcType="LONGVARCHAR" javaType="java.lang.String" />
-      <arg column="subImage" jdbcType="LONGVARCHAR" javaType="java.lang.String" />
     </constructor>
   </resultMap>
   <sql id="Base_Column_List" >
-    id, categoryId, name, subTitle, mainImage, price, stock, status, createTime, updateTime
+    id, categoryId, name, subTitle, mainImage, detail, subImage, price, stock, status, 
+    createTime, updateTime
   </sql>
-  <sql id="Blob_Column_List" >
-    detail, subImage
-  </sql>
-  <select id="selectByPrimaryKey" resultMap="ResultMapWithBLOBs" parameterType="java.lang.Integer" >
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Integer" >
     select 
     <include refid="Base_Column_List" />
-    ,
-    <include refid="Blob_Column_List" />
     from tmall_product
     where id = #{id,jdbcType=INTEGER}
   </select>
@@ -49,19 +31,19 @@
     delete from tmall_product
     where id = #{id,jdbcType=INTEGER}
   </delete>
-  <insert id="insert" parameterType="com.tmall.entity.po.ProductWithBLOBs" >
+  <insert id="insert" parameterType="com.tmall.entity.po.Product" >
     insert into tmall_product (id, categoryId, name, 
-      subTitle, mainImage, price, 
-      stock, status, createTime, 
-      updateTime, detail, subImage
+      subTitle, mainImage, detail, 
+      subImage, price, stock, 
+      status, createTime, updateTime
       )
     values (#{id,jdbcType=INTEGER}, #{categoryId,jdbcType=INTEGER}, #{name,jdbcType=VARCHAR}, 
-      #{subTitle,jdbcType=VARCHAR}, #{mainImage,jdbcType=VARCHAR}, #{price,jdbcType=DECIMAL}, 
-      #{stock,jdbcType=INTEGER}, #{status,jdbcType=INTEGER}, #{createTime,jdbcType=TIMESTAMP}, 
-      #{updateTime,jdbcType=TIMESTAMP}, #{detail,jdbcType=LONGVARCHAR}, #{subImage,jdbcType=LONGVARCHAR}
+      #{subTitle,jdbcType=VARCHAR}, #{mainImage,jdbcType=VARCHAR}, #{detail,jdbcType=VARCHAR}, 
+      #{subImage,jdbcType=VARCHAR}, #{price,jdbcType=DECIMAL}, #{stock,jdbcType=INTEGER}, 
+      #{status,jdbcType=INTEGER}, #{createTime,jdbcType=TIMESTAMP}, #{updateTime,jdbcType=TIMESTAMP}
       )
   </insert>
-  <insert id="insertSelective" parameterType="com.tmall.entity.po.ProductWithBLOBs" >
+  <insert id="insertSelective" parameterType="com.tmall.entity.po.Product" >
     insert into tmall_product
     <trim prefix="(" suffix=")" suffixOverrides="," >
       <if test="id != null" >
@@ -79,6 +61,12 @@
       <if test="mainImage != null" >
         mainImage,
       </if>
+      <if test="detail != null" >
+        detail,
+      </if>
+      <if test="subImage != null" >
+        subImage,
+      </if>
       <if test="price != null" >
         price,
       </if>
@@ -93,12 +81,6 @@
       </if>
       <if test="updateTime != null" >
         updateTime,
-      </if>
-      <if test="detail != null" >
-        detail,
-      </if>
-      <if test="subImage != null" >
-        subImage,
       </if>
     </trim>
     <trim prefix="values (" suffix=")" suffixOverrides="," >
@@ -117,6 +99,12 @@
       <if test="mainImage != null" >
         #{mainImage,jdbcType=VARCHAR},
       </if>
+      <if test="detail != null" >
+        #{detail,jdbcType=VARCHAR},
+      </if>
+      <if test="subImage != null" >
+        #{subImage,jdbcType=VARCHAR},
+      </if>
       <if test="price != null" >
         #{price,jdbcType=DECIMAL},
       </if>
@@ -132,15 +120,9 @@
       <if test="updateTime != null" >
         #{updateTime,jdbcType=TIMESTAMP},
       </if>
-      <if test="detail != null" >
-        #{detail,jdbcType=LONGVARCHAR},
-      </if>
-      <if test="subImage != null" >
-        #{subImage,jdbcType=LONGVARCHAR},
-      </if>
     </trim>
   </insert>
-  <update id="updateByPrimaryKeySelective" parameterType="com.tmall.entity.po.ProductWithBLOBs" >
+  <update id="updateByPrimaryKeySelective" parameterType="com.tmall.entity.po.Product" >
     update tmall_product
     <set >
       <if test="categoryId != null" >
@@ -154,6 +136,12 @@
       </if>
       <if test="mainImage != null" >
         mainImage = #{mainImage,jdbcType=VARCHAR},
+      </if>
+      <if test="detail != null" >
+        detail = #{detail,jdbcType=VARCHAR},
+      </if>
+      <if test="subImage != null" >
+        subImage = #{subImage,jdbcType=VARCHAR},
       </if>
       <if test="price != null" >
         price = #{price,jdbcType=DECIMAL},
@@ -170,28 +158,7 @@
       <if test="updateTime != null" >
         updateTime = #{updateTime,jdbcType=TIMESTAMP},
       </if>
-      <if test="detail != null" >
-        detail = #{detail,jdbcType=LONGVARCHAR},
-      </if>
-      <if test="subImage != null" >
-        subImage = #{subImage,jdbcType=LONGVARCHAR},
-      </if>
     </set>
-    where id = #{id,jdbcType=INTEGER}
-  </update>
-  <update id="updateByPrimaryKeyWithBLOBs" parameterType="com.tmall.entity.po.ProductWithBLOBs" >
-    update tmall_product
-    set categoryId = #{categoryId,jdbcType=INTEGER},
-      name = #{name,jdbcType=VARCHAR},
-      subTitle = #{subTitle,jdbcType=VARCHAR},
-      mainImage = #{mainImage,jdbcType=VARCHAR},
-      price = #{price,jdbcType=DECIMAL},
-      stock = #{stock,jdbcType=INTEGER},
-      status = #{status,jdbcType=INTEGER},
-      createTime = #{createTime,jdbcType=TIMESTAMP},
-      updateTime = #{updateTime,jdbcType=TIMESTAMP},
-      detail = #{detail,jdbcType=LONGVARCHAR},
-      subImage = #{subImage,jdbcType=LONGVARCHAR}
     where id = #{id,jdbcType=INTEGER}
   </update>
   <update id="updateByPrimaryKey" parameterType="com.tmall.entity.po.Product" >
@@ -200,6 +167,8 @@
       name = #{name,jdbcType=VARCHAR},
       subTitle = #{subTitle,jdbcType=VARCHAR},
       mainImage = #{mainImage,jdbcType=VARCHAR},
+      detail = #{detail,jdbcType=VARCHAR},
+      subImage = #{subImage,jdbcType=VARCHAR},
       price = #{price,jdbcType=DECIMAL},
       stock = #{stock,jdbcType=INTEGER},
       status = #{status,jdbcType=INTEGER},
