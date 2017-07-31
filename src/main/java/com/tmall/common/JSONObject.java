@@ -24,11 +24,11 @@ public class JSONObject {
         this.code = code;
     }
 
-    public static JSONObject Success(String msg, Object data) {
+    public static JSONObject success(String msg, Object data) {
         return new JSONObject(msg, data, SUCCESS_CODE);
     }
 
-    public static JSONObject SuccessWithMessage(String msg) {
+    public static JSONObject successWithMessage(String msg) {
         return new JSONObject(msg, null, SUCCESS_CODE);
     }
 

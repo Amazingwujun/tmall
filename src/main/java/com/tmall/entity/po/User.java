@@ -1,24 +1,27 @@
 package com.tmall.entity.po;
 
+import com.tmall.common.validator.First;
+import com.tmall.common.validator.Second;
 import org.hibernate.validator.constraints.Email;
 import org.hibernate.validator.constraints.Length;
-import org.hibernate.validator.constraints.NotEmpty;
+import org.hibernate.validator.constraints.NotBlank;
 
+import javax.validation.constraints.NotNull;
 import java.util.Date;
 
 public class User {
 
+    @NotNull(message = "userId不能为空", groups = {First.class})
     private Integer id;
 
-    @NotEmpty
-    @Length(min = 6)
+    @NotBlank(message = "用户名不能为空", groups = {First.class, Second.class})
     private String username;
 
-    @NotEmpty
-    @Length(min = 6)
+    @NotBlank(message = "密码不能为空", groups = {Second.class})
+    @Length(message = "密码最少六位", min = 6)
     private String password;
 
-    @NotEmpty
+    @NotBlank(message = "邮箱不能为空", groups = {Second.class})
     @Email
     private String email;
 

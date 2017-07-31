@@ -58,16 +58,15 @@ public class UserRealm extends AuthorizingRealm {
         String username = loginToken.getUsername();
 
         if (username == null) {
-            throw new AccountException("Null usernames are not allowed by this realm.");
+            throw new AccountException("用户名不允许为空");
         }
 
         User user = userService.getUserByUsername(username);
-        String password = user.getPassword();
-
-        if (password == null) {
+        if (user == null) {
             throw new UnknownAccountException("未找到用户 [" + username + "]");
         }
 
+        String password = user.getPassword();
         return new SimpleAuthenticationInfo(username, password.toCharArray(), getName());
     }
 }
