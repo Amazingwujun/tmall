@@ -67,6 +67,10 @@ public class UserRealm extends AuthorizingRealm {
         }
 
         String password = user.getPassword();
+
+        /**
+         * 加盐用法 SimpleAuthenticationInfo(Object principal, Object hashedCredentials, ByteSource credentialsSalt, String realmName)
+         * */
         return new SimpleAuthenticationInfo(username, password.toCharArray(), getName());
     }
 }

@@ -17,19 +17,30 @@
         <!--<property name="unauthorizedUrl" value="/error/unauthorized"/>-->
     </bean>
 
-
     <bean id="lifecycleBeanPostProcessor" class="org.apache.shiro.spring.LifecycleBeanPostProcessor"></bean>
-    <!-- 数据库保存的密码是使用MD5算法加密的，所以这里需要配置一个密码匹配对象 -->
-    <!--<bean id="credentialsMatcher" class="org.apache.shiro.authc.credential.Md5CredentialsMatcher"></bean>-->
-    <!-- 缓存管理 -->
-    <bean id="shiroCacheManager" class="org.apache.shiro.cache.MemoryConstrainedCacheManager"></bean>
 
-    <bean id="userRealm" class="com.tmall.security.UserRealm"></bean>
+    <!-- 缓存管理 -->
+    <!--<bean id="cacheManager" class="org.apache.shiro.cache.ehcache.EhCacheManager">
+        <property name="cacheManagerConfigFile" value="classpath:ehcach.xml" />
+    </bean>-->
+
+    <bean id="cacheManager" class="com.tmall.security.RedisManager"/>
+
+    <bean id="userRealm" class="com.tmall.security.UserRealm">
+        <property name="credentialsMatcher">
+            <bean class="com.tmall.security.RetryLimitCredentialsMatcher">
+                <constructor-arg index="0" ref="cacheManager"/>
+                <constructor-arg index="1" value="5"/>
+                <property name="hashAlgorithmName" value="MD5"></property> <!-- 加密算法的名称 -->
+                <property name="hashIterations" value="1"></property> <!-- 配置加密的次数 -->
+            </bean>
+        </property>
+    </bean>
 
     <!-- Shiro安全管理器 -->
     <bean id="securityManager" class="org.apache.shiro.web.mgt.DefaultWebSecurityManager">
         <property name="realm" ref="userRealm"></property>
-        <property name="cacheManager" ref="shiroCacheManager"></property>
+        <property name="cacheManager" ref="cacheManager"></property>
     </bean>
 
 </beans>

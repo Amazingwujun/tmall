@@ -35,6 +35,8 @@
             </array>
         </property>
 
+        <!--<property name="typeAliasesPackage" value="com.tmall.entity"/>-->
+
         <!-- 分页插件 -->
         <property name="plugins">
             <array>
@@ -50,6 +52,7 @@
     </bean>
 
     <bean name="mapperScannerConfigurer" class="org.mybatis.spring.mapper.MapperScannerConfigurer">
+        <!--<property name="sqlSessionFactoryBeanName" value="sqlSessionFactory"/>-->
         <property name="basePackage" value="com.tmall.dao"/>
     </bean>
 

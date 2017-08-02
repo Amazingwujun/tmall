@@ -20,6 +20,17 @@
         </listener-class>
     </listener>
 
+    <!-- tag::springSessionRepositoryFilter[] -->
+    <filter>
+        <filter-name>springSessionRepositoryFilter</filter-name>
+        <filter-class>org.springframework.web.filter.DelegatingFilterProxy</filter-class>
+    </filter>
+    <filter-mapping>
+        <filter-name>springSessionRepositoryFilter</filter-name>
+        <url-pattern>/*</url-pattern>
+    </filter-mapping>
+    <!-- end::springSessionRepositoryFilter[] -->
+
     <!-- 统一编码filter -->
     <filter>
         <filter-name>charsetEncoding</filter-name>

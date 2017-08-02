@@ -16,8 +16,7 @@
 
     <!-- 导入数据库的相关配置 -->
     <import resource="classpath:spring/spring-mybatis.xml"/>
-    <!-- 导入缓存的相关配置 -->
-    <import resource="classpath:spring/spring-cache.xml"/>
+
     <!-- 导入shiro的相关配置 -->
     <import resource="classpath:spring/spring-shiro.xml"/>
 
@@ -29,4 +28,8 @@
 
     <tx:annotation-driven/>
 
+    <!-- spring-session  -->
+    <bean class="org.springframework.session.data.redis.config.annotation.web.http.RedisHttpSessionConfiguration"/>
+
+    <bean class="org.springframework.data.redis.connection.jedis.JedisConnectionFactory"/>
 </beans>

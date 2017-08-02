@@ -16,6 +16,10 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.util.List;
 
+/**
+ *  Controller 异常汇总处理
+ *
+ */
 @RestController
 @ControllerAdvice
 public class ExceptionHandleController {

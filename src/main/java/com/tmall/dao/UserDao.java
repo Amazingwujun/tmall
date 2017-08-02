@@ -7,7 +7,7 @@ import org.springframework.stereotype.Repository;
 import java.util.Set;
 
 public interface UserDao {
-    int deleteByPrimaryKey(Integer id);
+    int deleteByPrimaryKey(@Param("id") Integer id);
 
     int insert(User record);
 
@@ -24,4 +24,5 @@ public interface UserDao {
     Set<String> selectRolesNameByUserName(@Param("username") String username);
 
     Set<String> selectPermissionsByUserName(@Param("username") String username);
+
 }

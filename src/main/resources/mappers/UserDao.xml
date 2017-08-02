@@ -160,4 +160,5 @@
         INNER JOIN tmall_permission ON tmall_role_permission.permissionId = tmall_permission.id
         WHERE username = #{username}
     </select>
+
 </mapper>
