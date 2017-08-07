@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
-<mapper namespace="com.tmall.dao.UserDao">
+<mapper namespace="com.tmall.dao.DBDao.UserDao">
     <resultMap id="BaseResultMap" type="com.tmall.entity.po.User">
         <constructor>
             <idArg column="id" jdbcType="INTEGER" javaType="java.lang.Integer"/>
@@ -38,7 +38,7 @@
       )
   </insert>
     <insert id="insertSelective" parameterType="com.tmall.entity.po.User">
-        insert into tmall_user
+        insert ignore into tmall_user
         <trim prefix="(" suffix=")" suffixOverrides=",">
             <if test="id != null">
                 id,
@@ -61,12 +61,9 @@
             <if test="validate != null">
                 validate,
             </if>
-            <if test="createTime != null">
-                createTime,
-            </if>
-            <if test="updateTime != null">
-                updateTime,
-            </if>
+
+            createTime
+
         </trim>
         <trim prefix="values (" suffix=")" suffixOverrides=",">
             <if test="id != null">
@@ -90,12 +87,7 @@
             <if test="validate != null">
                 #{validate,jdbcType=BIT},
             </if>
-            <if test="createTime != null">
-                #{createTime,jdbcType=TIMESTAMP},
-            </if>
-            <if test="updateTime != null">
-                #{updateTime,jdbcType=TIMESTAMP},
-            </if>
+            now()
         </trim>
     </insert>
     <update id="updateByPrimaryKeySelective" parameterType="com.tmall.entity.po.User">
@@ -161,4 +153,18 @@
         WHERE username = #{username}
     </select>
 
+    <select id="queryUserByEmailAndUsernameAndPhone" parameterType="map" resultType="integer">
+        SELECT COUNT(1)
+        FROM tmall_user
+        WHERE
+        <if test="username!=null">
+            username = #{username} OR
+        </if>
+        <if test="email!=null">
+            email = #{email} OR
+        </if>
+        <if test="phone!=null">
+            phone = #{phone}
+        </if>
+    </select>
 </mapper>

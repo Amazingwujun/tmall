@@ -53,7 +53,7 @@
 
     <bean name="mapperScannerConfigurer" class="org.mybatis.spring.mapper.MapperScannerConfigurer">
         <!--<property name="sqlSessionFactoryBeanName" value="sqlSessionFactory"/>-->
-        <property name="basePackage" value="com.tmall.dao"/>
+        <property name="basePackage" value="com.tmall.dao.DBDao"/>
     </bean>
 
 </beans>

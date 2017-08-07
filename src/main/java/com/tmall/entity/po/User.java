@@ -1,31 +1,33 @@
 package com.tmall.entity.po;
 
-import com.tmall.common.validator.First;
-import com.tmall.common.validator.Second;
+import com.tmall.common.validator.Login;
+import com.tmall.common.validator.Logout;
+import com.tmall.common.validator.Register;
 import org.hibernate.validator.constraints.Email;
 import org.hibernate.validator.constraints.Length;
 import org.hibernate.validator.constraints.NotBlank;
 
 import javax.validation.constraints.NotNull;
-import java.io.Serializable;
+import javax.validation.constraints.Pattern;
 import java.util.Date;
 
 public class User {
 
-    @NotNull(message = "userId不能为空", groups = {First.class})
     private Integer id;
 
-    @NotBlank(message = "用户名不能为空", groups = {First.class, Second.class})
+    @NotBlank(message = "用户名不能为空", groups = {Login.class, Register.class})
     private String username;
 
-    @NotBlank(message = "密码不能为空", groups = {Second.class})
+    @NotBlank(message = "密码不能为空", groups = {Login.class, Register.class})
     @Length(message = "密码最少六位", min = 6)
     private String password;
 
-    @NotBlank(message = "邮箱不能为空", groups = {Second.class})
-    @Email
+    @NotBlank(message = "邮箱不能为空", groups = {Register.class})
+    @Pattern(message = "邮箱格式错误", regexp = "\\w[-\\w.+]*@([A-Za-z0-9][-A-Za-z0-9]+\\.)+[A-Za-z]{2,14}",groups = {Register.class})
     private String email;
 
+    @NotBlank(message = "手机号码不能为空", groups = {Register.class})
+    @Pattern(message = "手机号码格式错误",regexp = "(13\\d|14[57]|15[^4,\\D]|17[13678]|18\\d)\\d{8}|170[0589]\\d{7}")
     private String phone;
 
     private Integer role;

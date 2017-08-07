@@ -8,6 +8,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.validation.BindException;
 import org.springframework.validation.FieldError;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestController;
@@ -17,8 +18,7 @@ import javax.servlet.http.HttpServletResponse;
 import java.util.List;
 
 /**
- *  Controller 异常汇总处理
- *
+ * Controller 异常汇总处理
  */
 @RestController
 @ControllerAdvice
@@ -29,15 +29,15 @@ public class ExceptionHandleController {
     /**
      * 登录异常
      *
-     * @param request
-     * @param response
-     * @return
+     * @param request  qingqiu
+     * @param response xiangyng
+     * @return JSONObject
      */
     @ExceptionHandler(AuthenticationException.class)
     public JSONObject authenticationExceptionHandel(AuthenticationException e, HttpServletRequest request, HttpServletResponse response) {
-        log.info(e.getMessage(),e);
+        log.debug(e.getMessage(), e);
 
-        String msg = "异常未捕获";
+        String msg;
         if (e instanceof IncorrectCredentialsException) {
             msg = "登录密码错误";
         } else if (e instanceof ExcessiveAttemptsException) {
@@ -50,7 +50,7 @@ public class ExceptionHandleController {
             msg = "帐号已经过期";
         } else if (e instanceof UnknownAccountException) {
             msg = "帐号不存在";
-        } else if (e instanceof AuthenticationException) {
+        } else {
             msg = "未知异常,登录失败";
         }
 
@@ -60,11 +60,11 @@ public class ExceptionHandleController {
     /**
      * 未登录异常
      *
-     * @return
+     * @return JSONObject
      */
     @ExceptionHandler(UnauthenticatedException.class)
     public JSONObject unAuthenticationExceptionHandle(UnauthenticatedException e) {
-        log.info(e.getMessage(),e);
+        log.debug(e.getMessage(), e);
 
         return JSONObject.error(e.getMessage(), 1);
     }
@@ -72,17 +72,57 @@ public class ExceptionHandleController {
     /**
      * 数据校检异常
      *
-     * @return
+     * @return JSONObject
      */
     @ExceptionHandler(BindException.class)
     public JSONObject validExcetpionHandle(BindException e) {
-        log.info(e.getMessage(),e);
+        log.debug(e.getMessage(), e);
 
-        List<FieldError> fieldErrors = e.getBindingResult().getFieldErrors();
-        for (FieldError error : fieldErrors) {
-            log.error(error.getField() + ":" + error.getDefaultMessage());
+        String message = getMessage(e);
+
+        return JSONObject.error(message, 1);
+    }
+
+    /**
+     * 数据校检异常,当参数含有注解{@code @RequestBody}时,
+     * {@link org.springframework.web.servlet.mvc.method.annotation.RequestResponseBodyMethodProcessor} 抛出的异常为
+     * {@link MethodArgumentNotValidException}
+     *
+     * @return JSONObject
+     */
+    @ExceptionHandler(MethodArgumentNotValidException.class)
+    public JSONObject methodArgumentNotValidExceptionHandle(MethodArgumentNotValidException e) {
+        log.debug(e.getMessage(), e);
+
+        String message = getMessage(e);
+
+        return JSONObject.error(message, 1);
+    }
+
+    private String getMessage(Exception e) {
+        if (e instanceof MethodArgumentNotValidException) {
+            MethodArgumentNotValidException validException = (MethodArgumentNotValidException) e;
+
+            String message = "";
+            List<FieldError> fieldErrors = validException.getBindingResult().getFieldErrors();
+            for (FieldError error : fieldErrors) {
+                log.error(error.getField() + ":" + error.getDefaultMessage());
+                message = error.getDefaultMessage();
+            }
+            return message;
+        } else if (e instanceof BindException) {
+            BindException bindException = (BindException) e;
+
+            String message = "";
+            List<FieldError> fieldErrors = bindException.getBindingResult().getFieldErrors();
+            for (FieldError error : fieldErrors) {
+                log.error(error.getField() + ":" + error.getDefaultMessage());
+                message = error.getDefaultMessage();
+            }
+            return message;
+        } else {
+            log.error(e.getMessage(), e);
+            return "异常类型无法捕获";
         }
-
-        return JSONObject.error("参数绑定异常", 1);
     }
 }
