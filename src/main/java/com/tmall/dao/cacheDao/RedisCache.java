@@ -42,7 +42,8 @@ public class RedisCache<K, V> implements Cache<K, V> {
             byte[] keyObj = SerializeUtils.obj2Byte(key);
             byte[] valueObj = SerializeUtils.obj2Byte(value);
 
-            cache.set(keyObj, valueObj);
+            //设置过期时间 5分钟
+            cache.setex(keyObj, 60 * 5, valueObj);
             return previous;
         } catch (IOException e) {
             throw new CacheException(e);
