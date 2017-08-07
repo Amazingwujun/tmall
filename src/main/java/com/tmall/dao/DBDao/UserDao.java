@@ -1,4 +1,4 @@
-package com.tmall.dao;
+package com.tmall.dao.DBDao;
 
 import com.tmall.entity.po.User;
 import org.apache.ibatis.annotations.Param;
@@ -25,4 +25,14 @@ public interface UserDao {
 
     Set<String> selectPermissionsByUserName(@Param("username") String username);
 
+    /**
+     * 查询关键参数是否被使用过
+     *
+     * @param username
+     * @param email
+     * @param phone
+     * @return
+     */
+    Integer queryUserByEmailAndUsernameAndPhone(@Param("username") String username, @Param("email") String email,
+                                                @Param("phone") String phone);
 }

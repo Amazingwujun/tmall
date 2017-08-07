@@ -1,6 +1,9 @@
 package com.tmall.security;
 
 
+import com.tmall.dao.cacheDao.RedisCache;
+import com.tmall.utils.RedisUtils;
+import com.tmall.utils.SerializeUtils;
 import org.apache.shiro.authc.AuthenticationInfo;
 import org.apache.shiro.authc.AuthenticationToken;
 import org.apache.shiro.authc.ExcessiveAttemptsException;
@@ -9,7 +12,10 @@ import org.apache.shiro.cache.Cache;
 import org.apache.shiro.cache.CacheManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.util.Assert;
+import redis.clients.jedis.Jedis;
 
+import java.io.IOException;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
@@ -18,29 +24,29 @@ import java.util.concurrent.atomic.AtomicInteger;
 public class RetryLimitCredentialsMatcher extends HashedCredentialsMatcher {
     private static final Logger log = LoggerFactory.getLogger(RetryLimitCredentialsMatcher.class);
 
-    //集群中可能会导致出现验证多过5次的现象，因为AtomicInteger只能保证单节点并发
     //集群请使用redis作为cache
-    private Cache<String, AtomicInteger> retryCache;
+    private RedisCache<String, AtomicInteger> retryCache;
 
-    private static final String defualtCacheName = "loginRetryCache";
+    private String defualtCacheName = "loginRetryCache";
 
     private int maxRetryCount = 5;
-
 
     public void setMaxRetryCount(int maxRetryCount) {
         this.maxRetryCount = maxRetryCount;
     }
 
     public RetryLimitCredentialsMatcher(CacheManager cacheManager, String cacheName) {
+        Assert.notNull(cacheManager, "缓存管理对象不能为空");
+
         if (cacheName == null) {
-            retryCache = cacheManager.getCache(defualtCacheName);
-        }else {
-            retryCache = cacheManager.getCache(cacheName);
+            retryCache = (RedisCache) cacheManager.getCache(defualtCacheName);
+        } else {
+            defualtCacheName = cacheName;
+            retryCache = (RedisCache) cacheManager.getCache(cacheName);
         }
     }
 
     /**
-     *
      * @param token
      * @param info
      * @return
@@ -48,21 +54,26 @@ public class RetryLimitCredentialsMatcher extends HashedCredentialsMatcher {
     @Override
     public boolean doCredentialsMatch(AuthenticationToken token, AuthenticationInfo info) {
         String username = (String) token.getPrincipal();
-        //retry count + 1
-        AtomicInteger retryCount = retryCache.get(username);
+
+        AtomicInteger retryCount = retryCache.get(defualtCacheName + ":" + username);
+
         if (null == retryCount) {
             retryCount = new AtomicInteger(0);
-            retryCache.put(username, retryCount);
+
+            //五分钟过期时间
+            retryCache.put(defualtCacheName + ":" + username, 5 * 60, retryCount);
         }
-        if (retryCount.incrementAndGet() > 5) {
-            log.warn("username: " + username + " tried to login more than 5 times in period");
-            throw new ExcessiveAttemptsException("username: " + username + " tried to login more than 5 times in period"
-            );
+
+        if (retryCount.incrementAndGet() > maxRetryCount) {
+            log.warn("用户: " + username + " 登录超过五次");
+            throw new ExcessiveAttemptsException("用户: " + username + " 登录超过五次");
         }
         boolean matches = super.doCredentialsMatch(token, info);
         if (matches) {
             //clear retry data
-            retryCache.remove(username);
+            retryCache.remove(defualtCacheName + ":" + username);
+        } else {
+            retryCache.put(defualtCacheName + ":" + username, 5 * 60, retryCount);
         }
         return matches;
     }

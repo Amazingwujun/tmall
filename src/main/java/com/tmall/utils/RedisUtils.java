@@ -1,11 +1,14 @@
 package com.tmall.utils;
 
 
+import org.apache.shiro.cache.CacheException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import redis.clients.jedis.Jedis;
 import redis.clients.jedis.JedisPool;
 import redis.clients.jedis.JedisPoolConfig;
+
+import java.io.IOException;
 
 public class RedisUtils {
 
@@ -24,5 +27,6 @@ public class RedisUtils {
     public static Jedis getJedis() {
         return jedisPool.getResource();
     }
+
 
 }

@@ -11,4 +11,6 @@ public interface IUserService {
     Set<String> getRoleNamesByUsername(String username);
 
     Set<String> getPermissionsByUserName(String username);
+
+    boolean register(User user);
 }

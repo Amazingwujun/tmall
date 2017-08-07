@@ -17,12 +17,7 @@
         <!--<property name="unauthorizedUrl" value="/error/unauthorized"/>-->
     </bean>
 
-    <bean id="lifecycleBeanPostProcessor" class="org.apache.shiro.spring.LifecycleBeanPostProcessor"></bean>
-
-    <!-- 缓存管理 -->
-    <!--<bean id="cacheManager" class="org.apache.shiro.cache.ehcache.EhCacheManager">
-        <property name="cacheManagerConfigFile" value="classpath:ehcach.xml" />
-    </bean>-->
+    <bean id="lifecycleBeanPostProcessor" class="org.apache.shiro.spring.LifecycleBeanPostProcessor"/>
 
     <bean id="cacheManager" class="com.tmall.security.RedisManager"/>
 
@@ -30,11 +25,13 @@
         <property name="credentialsMatcher">
             <bean class="com.tmall.security.RetryLimitCredentialsMatcher">
                 <constructor-arg index="0" ref="cacheManager"/>
-                <constructor-arg index="1" value="5"/>
+                <constructor-arg index="1" value="loginRetryCache"/>
+                <property name="maxRetryCount" value="5"/>
                 <property name="hashAlgorithmName" value="MD5"></property> <!-- 加密算法的名称 -->
                 <property name="hashIterations" value="1"></property> <!-- 配置加密的次数 -->
             </bean>
         </property>
+        <property name="authenticationCachingEnabled" value="true"/>
     </bean>
 
     <!-- Shiro安全管理器 -->

@@ -1,4 +1,4 @@
-package com.tmall.dao;
+package com.tmall.dao.DBDao;
 
 import com.tmall.entity.po.Product;
 

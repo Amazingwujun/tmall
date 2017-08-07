@@ -1,4 +1,4 @@
 package com.tmall.common.validator;
 
-public interface Second {
+public interface Register {
 }

@@ -1,4 +1,4 @@
 package com.tmall.common.validator;
 
-public interface First {
+public interface Logout {
 }

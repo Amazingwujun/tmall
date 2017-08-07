@@ -146,9 +146,48 @@ public class RedisCache<K, V> implements Cache<K, V> {
         }
     }
 
-    public static void main(String args[]){
-        RedisCache<Object, Object> cache = new RedisCache<>();
-        cache.keys();
-        cache.put("wuqo", "hah");
+    /**
+     *
+     * @param key
+     * @param seconds
+     * @param value
+     * @return
+     * @throws CacheException
+     */
+    public V put(K key,Integer seconds, V value) throws CacheException {
+        Jedis cache = null;
+
+        if (key instanceof String && value instanceof String) {
+            cache = RedisUtils.getJedis();
+            V previous = get(key);
+
+            if (seconds == null) {
+                cache.set((String) key, (String)value);
+            }else {
+                cache.setex((String)key,seconds,(String)value);
+            }
+            return previous;
+        }
+
+        try {
+            cache = RedisUtils.getJedis();
+            V previous = get(key);
+
+            byte[] keyObj = SerializeUtils.obj2Byte(key);
+            byte[] valueObj = SerializeUtils.obj2Byte(value);
+
+            if (seconds == null) {
+                cache.set(keyObj, valueObj);
+            }else {
+                cache.setex(keyObj,seconds,valueObj);
+            }
+            return previous;
+        } catch (IOException e) {
+            throw new CacheException(e);
+        }finally {
+            cache.close();
+        }
     }
+
+
 }
