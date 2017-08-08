@@ -2,12 +2,13 @@
 <beans xmlns="http://www.springframework.org/schema/beans"
        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
        xmlns:context="http://www.springframework.org/schema/context" xmlns:tx="http://www.springframework.org/schema/tx"
+       xmlns:aop="http://www.springframework.org/schema/aop"
        xsi:schemaLocation="http://www.springframework.org/schema/beans
 		http://www.springframework.org/schema/beans/spring-beans-4.2.xsd
 		http://www.springframework.org/schema/context
 		http://www.springframework.org/schema/context/spring-context-4.2.xsd
 		 http://www.springframework.org/schema/tx
-		 http://www.springframework.org/schema/tx/spring-tx.xsd">
+		 http://www.springframework.org/schema/tx/spring-tx.xsd http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop.xsd">
 
     <!-- 扫描路径,不扫描Controller -->
     <context:component-scan base-package="com.tmall">
@@ -23,13 +24,11 @@
     <!-- 导入email的相关配置 -->
     <import resource="classpath:spring/spring-email.xml"/>
 
-    <!-- 声明式事务管理 -->
-    <bean id="transactionManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
-        <property name="dataSource" ref="dataSource"/>
-        <property name="rollbackOnCommitFailure" value="true"/>
-    </bean>
+    <!--AOP-->
+    <aop:aspectj-autoproxy proxy-target-class="true"/>
 
-    <tx:annotation-driven/>
+    <!--注解事务-->
+    <tx:annotation-driven order="1" transaction-manager="transactionManager"/>
 
     <!-- spring-session  -->
     <bean class="org.springframework.session.data.redis.config.annotation.web.http.RedisHttpSessionConfiguration"/>

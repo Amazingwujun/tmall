@@ -12,12 +12,12 @@
 
 
     <!-- 配置数据源 -->
-    <bean id="dataSource" class="com.mchange.v2.c3p0.ComboPooledDataSource"
+    <bean id="dataSource_aliyun" class="com.mchange.v2.c3p0.ComboPooledDataSource"
           destroy-method="close"
-          p:driverClass="${db.driver}"
-          p:jdbcUrl="${db.url}"
-          p:user="${db.username}"
-          p:password="${db.password}"
+          p:driverClass="${remote_db.driver}"
+          p:jdbcUrl="${remote_db.url}"
+          p:user="${remote_db.username}"
+          p:password="${remote_db.password}"
           p:testConnectionOnCheckout="${db.c3p0.testConnectionOnCheckout}"
           p:testConnectionOnCheckin="${db.c3p0.testConnectionOnCheckin}"
           p:idleConnectionTestPeriod="${db.c3p0.idleConnectionTestPeriod}"
@@ -26,9 +26,38 @@
           p:maxPoolSize="${db.maxPoolSize}"
           p:maxIdleTime="${db.maxIdleTime}" />
 
+    <bean id="dataSource_local" class="com.mchange.v2.c3p0.ComboPooledDataSource"
+          destroy-method="close"
+          p:driverClass="${local_db.driver}"
+          p:jdbcUrl="${local_db.url}"
+          p:user="${local_db.username}"
+          p:password="${local_db.password}"
+          p:testConnectionOnCheckout="${db.c3p0.testConnectionOnCheckout}"
+          p:testConnectionOnCheckin="${db.c3p0.testConnectionOnCheckin}"
+          p:idleConnectionTestPeriod="${db.c3p0.idleConnectionTestPeriod}"
+          p:initialPoolSize="${db.initialSize}"
+          p:minPoolSize="${db.minPoolSize}"
+          p:maxPoolSize="${db.maxPoolSize}"
+          p:maxIdleTime="${db.maxIdleTime}" />
+
+    <!--多数据源路由控制器-->
+    <bean id="dynamicDatasource" class="com.tmall.utils.DynamicDatasourceHandle">
+        <property name="targetDataSources">
+            <map key-type="java.lang.String">
+                <entry key="dataSource_aliyun" value-ref="dataSource_aliyun"/>
+                <entry key="dataSource_local" value-ref="dataSource_local"/>
+            </map>
+        </property>
+    </bean>
+
+    <!-- 事务管理 -->
+    <bean id="transactionManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+        <property name="dataSource" ref="dynamicDatasource"/>
+        <property name="rollbackOnCommitFailure" value="true"/>
+    </bean>
 
     <bean id="sqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">
-        <property name="dataSource" ref="dataSource"/>
+        <property name="dataSource" ref="dynamicDatasource"/>
         <property name="mapperLocations">
             <array>
                 <value>classpath:mappers/*Dao.xml</value>

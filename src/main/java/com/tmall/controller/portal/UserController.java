@@ -14,6 +14,7 @@ import org.apache.shiro.subject.Subject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.util.StringUtils;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
@@ -44,7 +45,7 @@ public class UserController {
             return JSONObject.successWithMessage("用户已登录");
         }
 
-        subject.login(token); //异常抛到 {@code ExceptionHandleController 处理}
+        subject.login(token); /**异常抛到 {@code ExceptionHandleController 处理}*/
 
         User returnUser = userService.getUserByUsername(user.getUsername());
         returnUser.setPassword("");
@@ -52,6 +53,12 @@ public class UserController {
         return JSONObject.success("login success", returnUser);
     }
 
+    /**
+     * 遮掩用户电话号码
+     *
+     * @param phone
+     * @return
+     */
     private String phoneDigest(String phone) {
         if (phone == null) {
             return "";
@@ -61,7 +68,6 @@ public class UserController {
         builder.append(phone.substring(0, 2)).append("*******").append(phone.charAt(phone.length() - 1));
         return builder.toString();
     }
-
 
     /**
      * 用户注销
@@ -78,7 +84,6 @@ public class UserController {
         subject.logout();
         return JSONObject.successWithMessage("注销成功");
     }
-
 
     /**
      * 普通用户注册
@@ -101,7 +106,7 @@ public class UserController {
      * @return
      */
     @RequestMapping("checkUserExist")
-    public JSONObject checkUserExist(String query,Integer type) {
+    public JSONObject checkUserExist(String query, Integer type) {
         if (query == null || type == null) {
             return JSONObject.error("参数不能为空", 1);
         }
@@ -132,8 +137,18 @@ public class UserController {
         return JSONObject.success(null, user);
     }
 
+    /**
+     * 验证用户邮箱
+     *
+     * @param userId
+     * @param code
+     * @return
+     */
     @RequestMapping("emailValidate")
     public JSONObject emailValidate(Integer userId, String code) {
+        if (userId == null || StringUtils.isEmpty(code)) {
+            return JSONObject.error("参数异常", 1);
+        }
         boolean result = userService.emailValidate(userId, code, cacheManager.getCache("COMMON_CACHE"));
 
         return result ? JSONObject.successWithMessage("邮箱验证成功") : JSONObject.error("邮箱验证失败", 1);

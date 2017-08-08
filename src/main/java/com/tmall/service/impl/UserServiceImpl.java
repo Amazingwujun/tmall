@@ -1,9 +1,11 @@
 package com.tmall.service.impl;
 
+import com.tmall.common.annotation.Datasource;
 import com.tmall.dao.DBDao.UserDao;
 import com.tmall.dao.cacheDao.RedisCache;
 import com.tmall.entity.po.User;
 import com.tmall.service.IUserService;
+import com.tmall.utils.DynamicDatasourceHandle;
 import com.tmall.utils.EmailUtils;
 import org.apache.shiro.cache.Cache;
 import org.slf4j.Logger;
@@ -79,8 +81,9 @@ public class UserServiceImpl implements IUserService {
 
         String md5Password = DigestUtils.md5DigestAsHex(user.getPassword().getBytes());
         user.setPassword(md5Password);
-        int result = userDao.insert(user);
+        int result = userDao.insertSelective(user);
         if (result > 0) {
+            // TODO: 2017/8/8 应该使用线程池异步处理
             emailUtils.send(user); //发送验证邮箱
         }
         return result > 0;
@@ -91,12 +94,13 @@ public class UserServiceImpl implements IUserService {
      * 验证用户邮箱
      *
      * @param userId 用户ID
-     * @param code 用户上传验证码
-     * @param cache RedisCache
+     * @param code   用户上传验证码
+     * @param cache  RedisCache
      * @return
      */
     @Override
     @Transactional
+    @Datasource(DynamicDatasourceHandle.LOCAL_DB)
     public boolean emailValidate(Integer userId, String code, Cache cache) {
         User user = userDao.selectByPrimaryKey(userId);
         if (user == null) {
@@ -105,7 +109,7 @@ public class UserServiceImpl implements IUserService {
         }
 
         if (user.getValidate()) {
-            log.info("用户邮箱:{}已经验证" + user.getEmail());
+            log.info("用户邮箱:{} 已经验证", user.getEmail());
             return true;
         }
 
@@ -113,13 +117,12 @@ public class UserServiceImpl implements IUserService {
         String cacheCode = (String) cache.get(prefix);
         if (cacheCode != null && cacheCode.equals(code)) {
             user.setValidate(true);
+            cache.remove(prefix);
             int i = userDao.updateByPrimaryKeySelective(user);
             return i > 0;
         } else {
-            return false;
+            return false;   //校检码过期或校检码比对不通过
         }
-        int result = userDao.insertSelective(user);
-        return result > 0;
     }
 
     /**
