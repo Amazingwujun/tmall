@@ -3,6 +3,10 @@ package com.tmall.common;
 
 import com.alibaba.fastjson.annotation.JSONField;
 
+/**
+ * 服务器基本响应对象
+ *
+ */
 public class JSONObject {
     
     private static final int SUCCESS_CODE = 0;

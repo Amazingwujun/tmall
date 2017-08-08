@@ -21,18 +21,43 @@ public interface UserDao {
 
     User selectByUsername(@Param("username") String username);
 
+    /**
+     * 根据用户名获得用户角色
+     *
+     * @param username
+     * @return
+     */
     Set<String> selectRolesNameByUserName(@Param("username") String username);
 
+    /**
+     * 根据用户名获取权限
+     *
+     * @param username
+     * @return
+     */
     Set<String> selectPermissionsByUserName(@Param("username") String username);
 
     /**
-     * 查询关键参数是否被使用过
+     * 根据用户名查询用户是否存在
      *
      * @param username
+     * @return
+     */
+    Integer queryUserByUsername(@Param("username") String username);
+
+    /**
+     * 根据邮箱查询用户是否存在
+     *
      * @param email
+     * @return
+     */
+    Integer queryUserByEmail(@Param("email") String email);
+
+    /**
+     * 根据电话号码查询用户是否存在
+     *
      * @param phone
      * @return
      */
-    Integer queryUserByEmailAndUsernameAndPhone(@Param("username") String username, @Param("email") String email,
-                                                @Param("phone") String phone);
+    Integer queryUserByPhone(@Param("phone") String phone);
 }

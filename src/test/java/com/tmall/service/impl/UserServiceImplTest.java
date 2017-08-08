@@ -8,16 +8,16 @@ import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-import org.springframework.test.context.transaction.TransactionConfiguration;
 import org.springframework.transaction.annotation.Transactional;
 
-import static org.junit.Assert.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Set;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(
         {"classpath:spring/spring-core.xml"}
 )
-
 public class UserServiceImplTest {
 
     @Autowired
@@ -37,4 +37,32 @@ public class UserServiceImplTest {
       //  Assert.assertTrue("register failure",result);
     }
 
+
+    @Test
+    public void testGetUserByUsername() throws Exception {
+        User user = userService.getUserByUsername("wutian");
+        Assert.assertNotNull(user);
+    }
+
+    @Test
+    public void testGetRoleNamesByUsername() throws Exception {
+        Set<String> wutian = userService.getRoleNamesByUsername("wutian");
+        List list = new ArrayList<>();
+        list.addAll(wutian);
+        System.out.println(list);
+    }
+
+    @Test
+    public void testGetPermissionsByUserName() throws Exception {
+        Set<String> permissionsByUserName = userService.getPermissionsByUserName("伍俊");
+        List list = new ArrayList<>();
+        list.addAll(permissionsByUserName);
+        System.out.println(list);
+    }
+
+    @Test
+    public void testUserExsit() throws Exception {
+        boolean userExsit = userService.userExsit("85998282@qq.com", 2);
+        Assert.assertTrue(userExsit);
+    }
 }

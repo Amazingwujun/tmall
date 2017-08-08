@@ -153,18 +153,21 @@
         WHERE username = #{username}
     </select>
 
-    <select id="queryUserByEmailAndUsernameAndPhone" parameterType="map" resultType="integer">
+    <select id="queryUserByUsername" parameterType="string" resultType="integer">
         SELECT COUNT(1)
         FROM tmall_user
-        WHERE
-        <if test="username!=null">
-            username = #{username} OR
-        </if>
-        <if test="email!=null">
-            email = #{email} OR
-        </if>
-        <if test="phone!=null">
-            phone = #{phone}
-        </if>
+        WHERE username = #{username}
+    </select>
+
+    <select id="queryUserByEmail" parameterType="string" resultType="integer">
+        SELECT COUNT(1)
+        FROM tmall_user
+        WHERE email = #{email}
+    </select>
+
+    <select id="queryUserByPhone" parameterType="string" resultType="integer">
+        SELECT COUNT(1)
+        FROM tmall_user
+        WHERE phone = #{phone}
     </select>
 </mapper>

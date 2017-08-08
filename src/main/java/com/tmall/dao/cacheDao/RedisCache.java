@@ -28,28 +28,15 @@ public class RedisCache<K, V> implements Cache<K, V> {
         } catch (Throwable e) {
             throw new CacheException(e);
         }finally {
-            cache.close();
+            if (cache != null) {
+                cache.close();
+            }
         }
     }
 
     @Override
     public V put(K key, V value) throws CacheException {
-        Jedis cache = null;
-        try {
-            cache = RedisUtils.getJedis();
-            V previous = get(key);
-
-            byte[] keyObj = SerializeUtils.obj2Byte(key);
-            byte[] valueObj = SerializeUtils.obj2Byte(value);
-
-            //设置过期时间 5分钟
-            cache.setex(keyObj, 60 * 5, valueObj);
-            return previous;
-        } catch (IOException e) {
-            throw new CacheException(e);
-        }finally {
-            cache.close();
-        }
+        return put(key, null, value);
     }
 
     @Override
@@ -65,7 +52,9 @@ public class RedisCache<K, V> implements Cache<K, V> {
         } catch (Throwable t) {
             throw new CacheException(t);
         }finally {
-            cache.close();
+            if (cache != null) {
+                cache.close();
+            }
         }
     }
 
@@ -79,7 +68,9 @@ public class RedisCache<K, V> implements Cache<K, V> {
         } catch (Throwable t) {
             throw new CacheException(t);
         }finally {
-            cache.close();
+            if (cache != null) {
+                cache.close();
+            }
         }
     }
 
@@ -91,7 +82,9 @@ public class RedisCache<K, V> implements Cache<K, V> {
 
             return cache.dbSize().intValue();
         }finally {
-            cache.close();
+            if (cache != null) {
+                cache.close();
+            }
         }
     }
 
@@ -111,16 +104,18 @@ public class RedisCache<K, V> implements Cache<K, V> {
                 return result;
             }
 
-            return Collections.EMPTY_SET;
+            return new HashSet<>();
         } catch (Throwable e) {
             throw new CacheException(e);
         }finally {
-            cache.close();
+            if (cache != null) {
+                cache.close();
+            }
         }
     }
 
     @Override
-    public Collection values() {
+    public Collection<V> values() {
         Jedis cache = null;
         try {
             cache = RedisUtils.getJedis();
@@ -129,7 +124,7 @@ public class RedisCache<K, V> implements Cache<K, V> {
             List<byte[]> list = cache.mget(keySet.toArray(new byte[keySet.size()][]));
 
             if (CollectionUtils.isEmpty(list)) {
-                return Collections.EMPTY_LIST;
+                return new ArrayList<>();
             }
 
             List<V> values = new ArrayList<>(keySet.size());
@@ -142,7 +137,9 @@ public class RedisCache<K, V> implements Cache<K, V> {
         } catch (Throwable e) {
             throw new CacheException(e);
         } finally {
-            cache.close();
+            if (cache != null) {
+                cache.close();
+            }
         }
     }
 
@@ -185,7 +182,9 @@ public class RedisCache<K, V> implements Cache<K, V> {
         } catch (IOException e) {
             throw new CacheException(e);
         }finally {
-            cache.close();
+            if (cache != null) {
+                cache.close();
+            }
         }
     }
 
