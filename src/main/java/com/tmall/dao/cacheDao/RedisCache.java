@@ -6,6 +6,7 @@ import org.apache.shiro.cache.Cache;
 import org.apache.shiro.cache.CacheException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.http.converter.StringHttpMessageConverter;
 import org.springframework.util.CollectionUtils;
 import redis.clients.jedis.Jedis;
 
@@ -23,6 +24,7 @@ public class RedisCache<K, V> implements Cache<K, V> {
         Jedis cache = null;
         try {
             cache = RedisUtils.getJedis();
+
             byte[] obj = SerializeUtils.obj2Byte(key);
             return (V) SerializeUtils.byte2Obj(cache.get(obj));
         } catch (Throwable e) {
@@ -46,6 +48,7 @@ public class RedisCache<K, V> implements Cache<K, V> {
             cache = RedisUtils.getJedis();
 
             V previous = get(key);
+
             byte[] keyObj = SerializeUtils.obj2Byte(key);
             cache.del(keyObj);
             return previous;
@@ -93,11 +96,11 @@ public class RedisCache<K, V> implements Cache<K, V> {
         Jedis cache = null;
         try {
             cache = RedisUtils.getJedis();
-            
-            Set<byte[]> keys = cache.keys("*".getBytes());
-            if (!CollectionUtils.isEmpty(keys)) {
-                HashSet<K> result = new HashSet<>(keys.size());
-                for (byte[] k : keys) {
+
+            Set<byte[]> byteSet = cache.keys("*".getBytes());
+            if (!CollectionUtils.isEmpty(byteSet)) {
+                HashSet<K> result = new HashSet<>(byteSet.size());
+                for (byte[] k : byteSet) {
                     result.add((K) SerializeUtils.byte2Obj(k));
                 }
 
@@ -153,18 +156,6 @@ public class RedisCache<K, V> implements Cache<K, V> {
      */
     public V put(K key,Integer seconds, V value) throws CacheException {
         Jedis cache = null;
-
-        if (key instanceof String && value instanceof String) {
-            cache = RedisUtils.getJedis();
-            V previous = get(key);
-
-            if (seconds == null) {
-                cache.set((String) key, (String)value);
-            }else {
-                cache.setex((String)key,seconds,(String)value);
-            }
-            return previous;
-        }
 
         try {
             cache = RedisUtils.getJedis();

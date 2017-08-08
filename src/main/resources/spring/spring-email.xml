@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+		http://www.springframework.org/schema/beans/spring-beans-4.2.xsd">
+
+    <bean id="mailSender" class="org.springframework.mail.javamail.JavaMailSenderImpl">
+        <property name="host" value="smtp.qq.com"/>
+        <property name="username" value="85998282@qq.com"/>
+        <property name="password" value="wsaeltawzmlocabi"/> <!--qq邮箱授权码-->
+        <property name="port" value="465"/>
+        <property name="javaMailProperties">
+            <map>
+                <entry key="mail.smtp.ssl.enable" value="true"/>
+                <entry key="mail.smtp.ssl.socketFactory" value-ref="mailSSLSocketFactory"/>
+                <entry key="mail.smtp.auth" value="true"/><!--邮箱认证-->
+            </map>
+        </property>
+    </bean>
+
+    <bean id="mailSSLSocketFactory" class="com.sun.mail.util.MailSSLSocketFactory ">
+        <property name="trustAllHosts" value="true"/>
+    </bean>
+
+    <!-- this is a template message that we can pre-load with default state -->
+    <bean id="templateMessage" class="org.springframework.mail.SimpleMailMessage">
+        <property name="from" value="85998282@qq.com"/>
+        <property name="subject" value="邮箱验证"/>
+    </bean>
+
+    <bean id="emailUtils" class="com.tmall.utils.EmailUtils">
+        <property name="mailSender" ref="mailSender"/>
+        <property name="templateMessage" ref="templateMessage"/>
+        <property name="cacheManager" ref="cacheManager"/>
+    </bean>
+
+</beans>

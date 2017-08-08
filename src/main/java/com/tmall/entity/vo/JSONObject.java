@@ -1,4 +1,4 @@
-package com.tmall.common;
+package com.tmall.entity.vo;
 
 
 import com.alibaba.fastjson.annotation.JSONField;

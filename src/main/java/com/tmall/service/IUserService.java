@@ -1,6 +1,7 @@
 package com.tmall.service;
 
 import com.tmall.entity.po.User;
+import org.apache.shiro.cache.Cache;
 
 import java.util.Set;
 
@@ -41,4 +42,6 @@ public interface IUserService {
      * @return
      */
     boolean userExsit(String query, Integer type);
+
+    boolean emailValidate(Integer userId, String code, Cache cache);
 }

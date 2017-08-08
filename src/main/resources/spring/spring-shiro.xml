@@ -27,8 +27,8 @@
                 <constructor-arg index="0" ref="cacheManager"/>
                 <constructor-arg index="1" value="loginRetryCache"/>
                 <property name="maxRetryCount" value="5"/>
-                <property name="hashAlgorithmName" value="MD5"></property> <!-- 加密算法的名称 -->
-                <property name="hashIterations" value="1"></property> <!-- 配置加密的次数 -->
+                <property name="hashAlgorithmName" value="MD5"/> <!-- 加密算法的名称 -->
+                <property name="hashIterations" value="1"/><!-- 配置加密的次数 -->
             </bean>
         </property>
         <property name="authenticationCachingEnabled" value="true"/>
@@ -36,8 +36,9 @@
 
     <!-- Shiro安全管理器 -->
     <bean id="securityManager" class="org.apache.shiro.web.mgt.DefaultWebSecurityManager">
-        <property name="realm" ref="userRealm"></property>
-        <property name="cacheManager" ref="cacheManager"></property>
+        <property name="realm" ref="userRealm"/>
+        <property name="cacheManager" ref="cacheManager"/>
     </bean>
+
 
 </beans>

@@ -1,7 +1,7 @@
 package com.tmall.controller;
 
 
-import com.tmall.common.JSONObject;
+import com.tmall.entity.vo.JSONObject;
 import org.apache.shiro.authc.*;
 import org.apache.shiro.authz.UnauthenticatedException;
 import org.slf4j.Logger;

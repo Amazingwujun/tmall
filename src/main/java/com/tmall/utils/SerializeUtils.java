@@ -2,6 +2,9 @@ package com.tmall.utils;
 
 import java.io.*;
 
+/**
+ * 序列化及反序列化工具
+ */
 public class SerializeUtils {
 
     public static byte[] obj2Byte(Object object) throws IOException {

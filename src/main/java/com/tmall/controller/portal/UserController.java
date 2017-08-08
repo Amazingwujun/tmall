@@ -1,12 +1,15 @@
 package com.tmall.controller.portal;
 
-import com.tmall.common.JSONObject;
+import com.tmall.entity.vo.JSONObject;
 import com.tmall.common.validator.Login;
 import com.tmall.common.validator.Register;
 import com.tmall.entity.po.User;
 import com.tmall.service.IUserService;
+import com.tmall.utils.EmailUtils;
 import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.authc.UsernamePasswordToken;
+import org.apache.shiro.cache.Cache;
+import org.apache.shiro.cache.CacheManager;
 import org.apache.shiro.subject.Subject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -22,6 +25,9 @@ public class UserController {
 
     @Autowired
     IUserService userService;
+
+    @Autowired
+    CacheManager cacheManager;
 
     /**
      * 用户登录,登录异常全部交给{@link com.tmall.controller.ExceptionHandleController} 处理
@@ -91,7 +97,7 @@ public class UserController {
      * 查询特定字段是否已被使用
      *
      * @param query
-     * @param type 1_username,2_email,3_phone
+     * @param type  1_username,2_email,3_phone
      * @return
      */
     @RequestMapping("checkUserExist")
@@ -124,5 +130,12 @@ public class UserController {
         user.setPassword("");
         user.setPhone(phoneDigest(user.getPhone()));
         return JSONObject.success(null, user);
+    }
+
+    @RequestMapping("emailValidate")
+    public JSONObject emailValidate(Integer userId, String code) {
+        boolean result = userService.emailValidate(userId, code, cacheManager.getCache("COMMON_CACHE"));
+
+        return result ? JSONObject.successWithMessage("邮箱验证成功") : JSONObject.error("邮箱验证失败", 1);
     }
 }
