@@ -20,6 +20,9 @@
     <!-- 导入shiro的相关配置 -->
     <import resource="classpath:spring/spring-shiro.xml"/>
 
+    <!-- 导入email的相关配置 -->
+    <import resource="classpath:spring/spring-email.xml"/>
+
     <!-- 声明式事务管理 -->
     <bean id="transactionManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
         <property name="dataSource" ref="dataSource"/>

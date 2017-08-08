@@ -6,6 +6,7 @@ import org.apache.shiro.cache.Cache;
 import org.apache.shiro.cache.CacheException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.http.converter.StringHttpMessageConverter;
 import org.springframework.util.CollectionUtils;
 import redis.clients.jedis.Jedis;
 
@@ -23,32 +24,21 @@ public class RedisCache<K, V> implements Cache<K, V> {
         Jedis cache = null;
         try {
             cache = RedisUtils.getJedis();
+
             byte[] obj = SerializeUtils.obj2Byte(key);
             return (V) SerializeUtils.byte2Obj(cache.get(obj));
         } catch (Throwable e) {
             throw new CacheException(e);
         }finally {
-            cache.close();
+            if (cache != null) {
+                cache.close();
+            }
         }
     }
 
     @Override
     public V put(K key, V value) throws CacheException {
-        Jedis cache = null;
-        try {
-            cache = RedisUtils.getJedis();
-            V previous = get(key);
-
-            byte[] keyObj = SerializeUtils.obj2Byte(key);
-            byte[] valueObj = SerializeUtils.obj2Byte(value);
-
-            cache.set(keyObj, valueObj);
-            return previous;
-        } catch (IOException e) {
-            throw new CacheException(e);
-        }finally {
-            cache.close();
-        }
+        return put(key, null, value);
     }
 
     @Override
@@ -58,13 +48,16 @@ public class RedisCache<K, V> implements Cache<K, V> {
             cache = RedisUtils.getJedis();
 
             V previous = get(key);
+
             byte[] keyObj = SerializeUtils.obj2Byte(key);
             cache.del(keyObj);
             return previous;
         } catch (Throwable t) {
             throw new CacheException(t);
         }finally {
-            cache.close();
+            if (cache != null) {
+                cache.close();
+            }
         }
     }
 
@@ -78,7 +71,9 @@ public class RedisCache<K, V> implements Cache<K, V> {
         } catch (Throwable t) {
             throw new CacheException(t);
         }finally {
-            cache.close();
+            if (cache != null) {
+                cache.close();
+            }
         }
     }
 
@@ -90,7 +85,9 @@ public class RedisCache<K, V> implements Cache<K, V> {
 
             return cache.dbSize().intValue();
         }finally {
-            cache.close();
+            if (cache != null) {
+                cache.close();
+            }
         }
     }
 
@@ -99,27 +96,29 @@ public class RedisCache<K, V> implements Cache<K, V> {
         Jedis cache = null;
         try {
             cache = RedisUtils.getJedis();
-            
-            Set<byte[]> keys = cache.keys("*".getBytes());
-            if (!CollectionUtils.isEmpty(keys)) {
-                HashSet<K> result = new HashSet<>(keys.size());
-                for (byte[] k : keys) {
+
+            Set<byte[]> byteSet = cache.keys("*".getBytes());
+            if (!CollectionUtils.isEmpty(byteSet)) {
+                HashSet<K> result = new HashSet<>(byteSet.size());
+                for (byte[] k : byteSet) {
                     result.add((K) SerializeUtils.byte2Obj(k));
                 }
 
                 return result;
             }
 
-            return Collections.EMPTY_SET;
+            return new HashSet<>();
         } catch (Throwable e) {
             throw new CacheException(e);
         }finally {
-            cache.close();
+            if (cache != null) {
+                cache.close();
+            }
         }
     }
 
     @Override
-    public Collection values() {
+    public Collection<V> values() {
         Jedis cache = null;
         try {
             cache = RedisUtils.getJedis();
@@ -128,7 +127,7 @@ public class RedisCache<K, V> implements Cache<K, V> {
             List<byte[]> list = cache.mget(keySet.toArray(new byte[keySet.size()][]));
 
             if (CollectionUtils.isEmpty(list)) {
-                return Collections.EMPTY_LIST;
+                return new ArrayList<>();
             }
 
             List<V> values = new ArrayList<>(keySet.size());
@@ -141,7 +140,9 @@ public class RedisCache<K, V> implements Cache<K, V> {
         } catch (Throwable e) {
             throw new CacheException(e);
         } finally {
-            cache.close();
+            if (cache != null) {
+                cache.close();
+            }
         }
     }
 
@@ -155,18 +156,6 @@ public class RedisCache<K, V> implements Cache<K, V> {
      */
     public V put(K key,Integer seconds, V value) throws CacheException {
         Jedis cache = null;
-
-        if (key instanceof String && value instanceof String) {
-            cache = RedisUtils.getJedis();
-            V previous = get(key);
-
-            if (seconds == null) {
-                cache.set((String) key, (String)value);
-            }else {
-                cache.setex((String)key,seconds,(String)value);
-            }
-            return previous;
-        }
 
         try {
             cache = RedisUtils.getJedis();
@@ -184,7 +173,9 @@ public class RedisCache<K, V> implements Cache<K, V> {
         } catch (IOException e) {
             throw new CacheException(e);
         }finally {
-            cache.close();
+            if (cache != null) {
+                cache.close();
+            }
         }
     }
 

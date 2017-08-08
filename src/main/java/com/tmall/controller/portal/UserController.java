@@ -1,14 +1,15 @@
 package com.tmall.controller.portal;
 
-import com.tmall.common.JSONObject;
+import com.tmall.entity.vo.JSONObject;
 import com.tmall.common.validator.Login;
-import com.tmall.common.validator.Logout;
 import com.tmall.common.validator.Register;
 import com.tmall.entity.po.User;
 import com.tmall.service.IUserService;
+import com.tmall.utils.EmailUtils;
 import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.authc.UsernamePasswordToken;
-import org.apache.shiro.authz.annotation.RequiresRoles;
+import org.apache.shiro.cache.Cache;
+import org.apache.shiro.cache.CacheManager;
 import org.apache.shiro.subject.Subject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -24,6 +25,9 @@ public class UserController {
 
     @Autowired
     IUserService userService;
+
+    @Autowired
+    CacheManager cacheManager;
 
     /**
      * 用户登录,登录异常全部交给{@link com.tmall.controller.ExceptionHandleController} 处理
@@ -70,17 +74,16 @@ public class UserController {
     public JSONObject register(@Validated(Register.class) User user) {
         user.setRole(1);//普通用户角色
         boolean result = userService.register(user);
-        return result == true ? JSONObject.successWithMessage("注册成功") : JSONObject.error("注册失败", 1);
+        return result ? JSONObject.successWithMessage("注册成功") : JSONObject.error("注册失败", 1);
     }
 
     /**
-     *
      * @param query
-     * @param type 1_username,2_email,3_phone
+     * @param type  1_username,2_email,3_phone
      * @return
      */
     @RequestMapping("checkUserExist")
-    public JSONObject checkUserExist(String query,Integer type) {
+    public JSONObject checkUserExist(String query, Integer type) {
         switch (type) {
             case 1:
                 //根据用户名查询
@@ -93,5 +96,12 @@ public class UserController {
 
 
         return null;
+    }
+
+    @RequestMapping("emailValidate")
+    public JSONObject emailValidate(Integer userId, String code) {
+        boolean result = userService.emailValidate(userId, code, cacheManager.getCache("COMMON_CACHE"));
+
+        return result ? JSONObject.successWithMessage("邮箱验证成功") : JSONObject.error("邮箱验证失败", 1);
     }
 }

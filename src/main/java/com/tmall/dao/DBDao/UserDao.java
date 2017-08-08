@@ -9,6 +9,7 @@ import java.util.Set;
 public interface UserDao {
     int deleteByPrimaryKey(@Param("id") Integer id);
 
+
     int insert(User record);
 
     int insertSelective(User record);

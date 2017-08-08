@@ -30,11 +30,11 @@
     <insert id="insert" parameterType="com.tmall.entity.po.User">
     insert into tmall_user (id, username, password, 
       email, phone, role, 
-      validate, createTime, updateTime
+      validate, createTime
       )
     values (#{id,jdbcType=INTEGER}, #{username,jdbcType=VARCHAR}, #{password,jdbcType=VARCHAR}, 
       #{email,jdbcType=VARCHAR}, #{phone,jdbcType=VARCHAR}, #{role,jdbcType=INTEGER}, 
-      #{validate,jdbcType=BIT}, #{createTime,jdbcType=TIMESTAMP}, #{updateTime,jdbcType=TIMESTAMP}
+      #{validate,jdbcType=BIT}, now()
       )
   </insert>
     <insert id="insertSelective" parameterType="com.tmall.entity.po.User">
@@ -61,9 +61,7 @@
             <if test="validate != null">
                 validate,
             </if>
-
             createTime
-
         </trim>
         <trim prefix="values (" suffix=")" suffixOverrides=",">
             <if test="id != null">
@@ -111,12 +109,6 @@
             <if test="validate != null">
                 validate = #{validate,jdbcType=BIT},
             </if>
-            <if test="createTime != null">
-                createTime = #{createTime,jdbcType=TIMESTAMP},
-            </if>
-            <if test="updateTime != null">
-                updateTime = #{updateTime,jdbcType=TIMESTAMP},
-            </if>
         </set>
         where id = #{id,jdbcType=INTEGER}
     </update>
@@ -127,9 +119,7 @@
       email = #{email,jdbcType=VARCHAR},
       phone = #{phone,jdbcType=VARCHAR},
       role = #{role,jdbcType=INTEGER},
-      validate = #{validate,jdbcType=BIT},
-      createTime = #{createTime,jdbcType=TIMESTAMP},
-      updateTime = #{updateTime,jdbcType=TIMESTAMP}
+      validate = #{validate,jdbcType=BIT}
     where id = #{id,jdbcType=INTEGER}
   </update>
 
