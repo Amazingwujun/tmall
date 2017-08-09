@@ -160,4 +160,17 @@
         FROM tmall_user
         WHERE phone = #{phone}
     </select>
+
+    <select id="selectByEmail" parameterType="string" resultMap="BaseResultMap">
+        SELECT
+        <include refid="Base_Column_List"/>
+        FROM tmall_user
+        WHERE email = #{email}
+    </select>
+
+    <update id="updatePasswordByUsername" parameterType="map">
+        UPDATE tmall_user
+        SET password = #{password}
+        where username = #{username}
+    </update>
 </mapper>

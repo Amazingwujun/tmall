@@ -57,4 +57,22 @@ public interface IUserService {
      * @return
      */
     boolean emailValidate(String username, String token, Cache cache);
+
+    /**
+     * 忘记密码
+     *
+     * @param key
+     * @param type
+     */
+    boolean forgetPassword(String key,Integer type);
+
+    /**
+     * 重置密码
+     *
+     * @param username
+     * @param password
+     * @param token
+     * @return
+     */
+    boolean resetPassword(String username, String password, String token);
 }

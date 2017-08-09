@@ -29,6 +29,8 @@ public interface UserDao {
      */
     Set<String> selectRolesNameByUserName(@Param("username") String username);
 
+    User selectByEmail(@Param("email") String email);
+
     /**
      * 根据用户名获取权限
      *
@@ -60,4 +62,13 @@ public interface UserDao {
      * @return
      */
     Integer queryUserByPhone(@Param("phone") String phone);
+
+    /**
+     * 根据用户名重置密码
+     *
+     * @param username
+     * @param password
+     * @return
+     */
+    Integer updatePasswordByUsername(@Param("username") String username, @Param("password") String password);
 }

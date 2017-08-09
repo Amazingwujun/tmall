@@ -1,5 +1,6 @@
 package com.tmall.controller.portal;
 
+import com.tmall.common.validatorOrder.ResetPassword;
 import com.tmall.entity.vo.JSONObject;
 import com.tmall.common.validatorOrder.Login;
 import com.tmall.common.validatorOrder.Register;
@@ -12,6 +13,7 @@ import org.apache.shiro.subject.Subject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
@@ -105,8 +107,8 @@ public class UserController {
      */
     @RequestMapping("checkUserExist")
     public JSONObject checkUserExist(String query, Integer type) {
-        if (query == null || type == null) {
-            return JSONObject.error("参数不能为空", 1);
+        if (StringUtils.isEmpty(query) || type == null) {
+            return JSONObject.error("参数异常", 1);
         }
 
         boolean userExsit = userService.userExist(query, type);
@@ -144,11 +146,50 @@ public class UserController {
      */
     @RequestMapping("emailValidate")
     public JSONObject emailValidate(String username, String token) {
-        if (username == null || StringUtils.isEmpty(token)) {
+        if (StringUtils.isEmpty(username) || StringUtils.isEmpty(token)) {
             return JSONObject.error("参数异常", 1);
         }
         boolean result = userService.emailValidate(username, token, cacheManager.getCache("COMMON_CACHE"));
 
         return result ? JSONObject.successWithMessage("邮箱验证成功") : JSONObject.error("邮箱验证失败", 1);
+    }
+
+    /**
+     * 忘记密码,发送重置密码邮件.
+     *
+     * @param key  用户名或邮箱
+     * @param type 1_用户名,2_邮箱
+     * @return
+     */
+    @RequestMapping("forgetPassword")
+    public JSONObject forgetPassword(String key, Integer type) {
+        if (StringUtils.isEmpty(key) || type == null) {
+            return JSONObject.error("参数异常", 1);
+        }
+
+        //判断用户提供之参数是否存在
+        boolean userExist = userService.userExist(key, type);
+        if (!userExist) {
+            return JSONObject.error("用户名或邮箱不存在", 1);
+        }
+
+        boolean result = userService.forgetPassword(key, type);
+        return result ? JSONObject.successWithMessage("邮件发送成功") : JSONObject.error("邮件发送失败", 1);
+    }
+
+    /**
+     * 重置密码
+     *
+     * @param user 接收username,password这两个参数
+     * @param token 重置密码必须的令牌
+     * @return
+     */
+    @RequestMapping("resetPassword")
+    public JSONObject resetPassword(@Validated(ResetPassword.class) User user, String token) {
+        if (StringUtils.isEmpty(token)) return JSONObject.error("token为空,无法重置密码",1);
+
+        boolean result = userService.resetPassword(user.getUsername(), user.getPassword(), token);
+
+        return result ? JSONObject.successWithMessage("密码重置成功") : JSONObject.error("密码重置失败", 1);
     }
 }

@@ -6,7 +6,9 @@ import com.tmall.entity.po.User;
 import com.tmall.service.IUserService;
 import com.tmall.utils.dynamicDatasource.DynamicDatasourceHandle;
 import com.tmall.utils.email.EmailUtils;
+import com.tmall.utils.redis.RedisUtils;
 import org.apache.shiro.cache.Cache;
+import org.apache.shiro.cache.CacheManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,6 +16,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
 import org.springframework.util.DigestUtils;
+import org.springframework.util.StringUtils;
+import redis.clients.jedis.Jedis;
 
 import java.util.Set;
 import java.util.concurrent.ExecutorService;
@@ -27,9 +31,18 @@ public class UserServiceImpl implements IUserService {
     @Autowired
     private UserDao userDao;
 
+    /**
+     *
+     */
     @Autowired
     private EmailUtils emailUtils;
 
+    @Autowired
+    private CacheManager cacheManager;
+
+    /**
+     * 用来执行异步的任务，比如邮件发送
+     */
     private ExecutorService executor = Executors.newFixedThreadPool(3);
 
     /**
@@ -40,7 +53,7 @@ public class UserServiceImpl implements IUserService {
      */
     @Override
     public User getUserByUsername(String username) {
-        Assert.notNull(username, "用户名不能为空");
+        Assert.hasText(username,"用户名不能为空");
 
         return userDao.selectByUsername(username);
     }
@@ -53,7 +66,7 @@ public class UserServiceImpl implements IUserService {
      */
     @Override
     public Set<String> getRoleNamesByUsername(String username) {
-        Assert.notNull(username, "用户名不能为空");
+        Assert.hasText(username,"用户名不能为空");
 
         return userDao.selectRolesNameByUserName(username);
     }
@@ -66,7 +79,7 @@ public class UserServiceImpl implements IUserService {
      */
     @Override
     public Set<String> getPermissionsByUserName(String username) {
-        Assert.notNull(username, "用户名不能为空");
+        Assert.hasText(username,"用户名不能为空");
 
         return userDao.selectPermissionsByUserName(username);
     }
@@ -89,9 +102,10 @@ public class UserServiceImpl implements IUserService {
         user.setPassword(md5Password);
         int result = userDao.insertSelective(user);
         if (result > 0) {   //新开线程执行邮件发送任务,防止阻塞
-            emailUtils.setUser(user); //注入邮件发送对象
-            ExecutorService executor = Executors.newSingleThreadExecutor();
-            executor.execute(emailUtils);
+            synchronized (this){
+                emailUtils.setStrategy(user,1); //注入邮件发送对象
+                executor.execute(emailUtils);
+            }
         }
 
         return result > 0;
@@ -110,6 +124,10 @@ public class UserServiceImpl implements IUserService {
     @Transactional
     @Datasource(DynamicDatasourceHandle.REMOTE_DB)
     public boolean emailValidate(String username, String token, Cache cache) {
+        if (StringUtils.isEmpty(username) || StringUtils.isEmpty(token) || cache == null) {
+            throw new IllegalArgumentException("方法参数异常");
+        }
+
         User user = userDao.selectByUsername(username);
         if (user == null) {
             log.error("用户ID:{} 不存在", username);
@@ -121,7 +139,7 @@ public class UserServiceImpl implements IUserService {
             return true;
         }
 
-        String prefix = EmailUtils.prefix + user.getUsername();
+        String prefix = EmailUtils.EMAIL_VALIDATE_TOKEN + user.getUsername();
         String cacheCode = (String) cache.get(prefix);
         if (cacheCode != null && cacheCode.equals(token)) {
             user.setValidate(true);
@@ -141,6 +159,10 @@ public class UserServiceImpl implements IUserService {
      * @return
      */
     public boolean userExist(String query, Integer type) {
+        if (StringUtils.isEmpty(query) || type == null) {
+            throw new IllegalArgumentException("方法参数异常");
+        }
+
         Integer result;
 
         switch (type) {
@@ -162,4 +184,71 @@ public class UserServiceImpl implements IUserService {
 
         return result > 0;
     }
+
+    /**
+     *
+     * @param key
+     * @param type
+     */
+    public boolean forgetPassword(String key,Integer type) {
+        if (StringUtils.isEmpty(key) || type == null) {
+            throw new IllegalArgumentException("方法参数异常");
+        }
+
+        User user;
+
+        if (1 == type) {
+            //用户名
+            user = userDao.selectByUsername(key);
+            synchronized (this) {
+                emailUtils.setStrategy(user,2);
+                executor.execute(emailUtils);
+            }
+            return true;
+        } else if (2 == type) {
+            //邮箱
+            user = userDao.selectByEmail(key);
+            synchronized (this) {
+                emailUtils.setStrategy(user,2);
+                executor.execute(emailUtils);
+            }
+            return true;
+        }else {
+            log.error("参数type:{} 异常",type);
+            return false;
+        }
+    }
+
+    /**
+     * 重置密码
+     *
+     * @param username
+     * @param password
+     * @param token
+     * @return
+     */
+    public boolean resetPassword(String username, String password, String token){
+        if (StringUtils.isEmpty(username) || StringUtils.isEmpty(password) || StringUtils.isEmpty(token)) {
+            log.error("参数不能为空");
+            return false;
+        }
+
+        String key = EmailUtils.EMAIL_FORGETPASSWORD_TOKEN+username; //获得key
+        Cache<Object, Object> cache = cacheManager.getCache(com.tmall.common.constant.Cache.COMMON_USE_CACHE);
+        String tokenCache = (String) cache.get(key);
+        if (!key.equals(tokenCache)) {
+            log.info("用户:{} 重置密码的token不匹配",username);
+            return false;
+        }else {
+            cache.remove(key);
+        }
+
+        Integer result = userDao.updatePasswordByUsername(username, password);
+        if (result > 0) {
+            return true;
+        }else {
+            return false;
+        }
+    }
+
 }

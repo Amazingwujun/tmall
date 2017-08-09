@@ -177,13 +177,6 @@
             <version>1.6.0</version>
         </dependency>
 
-        <!-- 邮件模版 -->
-        <dependency>
-            <groupId>org.apache.velocity</groupId>
-            <artifactId>velocity</artifactId>
-            <version>1.7</version>
-        </dependency>
-
         <!--AspectJ-->
         <dependency>
             <groupId>org.aspectj</groupId>
