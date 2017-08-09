@@ -1,14 +1,12 @@
 package com.tmall.controller.portal;
 
 import com.tmall.entity.vo.JSONObject;
-import com.tmall.common.validator.Login;
-import com.tmall.common.validator.Register;
+import com.tmall.common.validatorOrder.Login;
+import com.tmall.common.validatorOrder.Register;
 import com.tmall.entity.po.User;
 import com.tmall.service.IUserService;
-import com.tmall.utils.EmailUtils;
 import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.authc.UsernamePasswordToken;
-import org.apache.shiro.cache.Cache;
 import org.apache.shiro.cache.CacheManager;
 import org.apache.shiro.subject.Subject;
 import org.slf4j.Logger;
@@ -111,7 +109,7 @@ public class UserController {
             return JSONObject.error("参数不能为空", 1);
         }
 
-        boolean userExsit = userService.userExsit(query, type);
+        boolean userExsit = userService.userExist(query, type);
 
         return userExsit ? JSONObject.successWithMessage("用户已经存在") : JSONObject.error("用户不存在", 1);
     }
@@ -140,16 +138,16 @@ public class UserController {
     /**
      * 验证用户邮箱
      *
-     * @param userId
-     * @param code
+     * @param username
+     * @param token
      * @return
      */
     @RequestMapping("emailValidate")
-    public JSONObject emailValidate(Integer userId, String code) {
-        if (userId == null || StringUtils.isEmpty(code)) {
+    public JSONObject emailValidate(String username, String token) {
+        if (username == null || StringUtils.isEmpty(token)) {
             return JSONObject.error("参数异常", 1);
         }
-        boolean result = userService.emailValidate(userId, code, cacheManager.getCache("COMMON_CACHE"));
+        boolean result = userService.emailValidate(username, token, cacheManager.getCache("COMMON_CACHE"));
 
         return result ? JSONObject.successWithMessage("邮箱验证成功") : JSONObject.error("邮箱验证失败", 1);
     }

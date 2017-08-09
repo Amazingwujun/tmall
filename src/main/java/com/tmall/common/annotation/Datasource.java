@@ -1,6 +1,6 @@
 package com.tmall.common.annotation;
 
-import com.tmall.utils.DynamicDatasourceHandle;
+import com.tmall.utils.dynamicDatasource.DynamicDatasourceHandle;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
@@ -17,5 +17,5 @@ import java.lang.annotation.Target;
 @Retention(RetentionPolicy.RUNTIME)
 public @interface Datasource {
 
-    String value() default DynamicDatasourceHandle.LOCAL_DB;
+    String value() default DynamicDatasourceHandle.REMOTE_DB;
 }

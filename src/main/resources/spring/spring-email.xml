@@ -22,15 +22,8 @@
         <property name="trustAllHosts" value="true"/>
     </bean>
 
-    <!-- this is a template message that we can pre-load with default state -->
-    <bean id="templateMessage" class="org.springframework.mail.SimpleMailMessage">
-        <property name="from" value="85998282@qq.com"/>
-        <property name="subject" value="邮箱验证"/>
-    </bean>
-
-    <bean id="emailUtils" class="com.tmall.utils.EmailUtils">
+    <bean id="emailUtils" class="com.tmall.utils.email.EmailUtils">
         <property name="mailSender" ref="mailSender"/>
-        <property name="templateMessage" ref="templateMessage"/>
         <property name="cacheManager" ref="cacheManager"/>
     </bean>
 

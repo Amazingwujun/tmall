@@ -2,20 +2,15 @@ package com.tmall.security;
 
 
 import com.tmall.dao.cacheDao.RedisCache;
-import com.tmall.utils.RedisUtils;
-import com.tmall.utils.SerializeUtils;
 import org.apache.shiro.authc.AuthenticationInfo;
 import org.apache.shiro.authc.AuthenticationToken;
 import org.apache.shiro.authc.ExcessiveAttemptsException;
 import org.apache.shiro.authc.credential.HashedCredentialsMatcher;
-import org.apache.shiro.cache.Cache;
 import org.apache.shiro.cache.CacheManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.util.Assert;
-import redis.clients.jedis.Jedis;
 
-import java.io.IOException;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**

@@ -1,4 +1,4 @@
-package com.tmall.utils;
+package com.tmall.utils.dynamicDatasource;
 
 import org.springframework.jdbc.datasource.lookup.AbstractRoutingDataSource;
 
@@ -7,9 +7,9 @@ import org.springframework.jdbc.datasource.lookup.AbstractRoutingDataSource;
  */
 public class DynamicDatasourceHandle extends AbstractRoutingDataSource {
     
-    public static final String REMOTE_DB = "dataSource_aliyun";
+    public static final String REMOTE_DB = "dataSource_aliyun"; //default database
 
-    public static final String LOCAL_DB = "dataSource_local";
+    public static final String LOCAL_DB = "dataSource_local"; //not use on current time
 
     private static ThreadLocal db = new ThreadLocal();
 

@@ -1,12 +1,11 @@
 package com.tmall.dao.cacheDao;
 
-import com.tmall.utils.RedisUtils;
+import com.tmall.utils.redis.RedisUtils;
 import com.tmall.utils.SerializeUtils;
 import org.apache.shiro.cache.Cache;
 import org.apache.shiro.cache.CacheException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.http.converter.StringHttpMessageConverter;
 import org.springframework.util.CollectionUtils;
 import redis.clients.jedis.Jedis;
 

@@ -1,4 +1,4 @@
-package com.tmall.utils;
+package com.tmall.utils.dynamicDatasource;
 
 /**
  * Created by Administrator on 2017/8/8.

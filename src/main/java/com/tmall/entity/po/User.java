@@ -1,13 +1,10 @@
 package com.tmall.entity.po;
 
-import com.tmall.common.validator.Login;
-import com.tmall.common.validator.Logout;
-import com.tmall.common.validator.Register;
-import org.hibernate.validator.constraints.Email;
+import com.tmall.common.validatorOrder.Login;
+import com.tmall.common.validatorOrder.Register;
 import org.hibernate.validator.constraints.Length;
 import org.hibernate.validator.constraints.NotBlank;
 
-import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Pattern;
 import java.util.Date;
 

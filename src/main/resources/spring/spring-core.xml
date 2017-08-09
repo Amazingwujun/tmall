@@ -28,7 +28,7 @@
     <aop:aspectj-autoproxy proxy-target-class="true"/>
 
     <!--注解事务-->
-    <tx:annotation-driven order="1" transaction-manager="transactionManager"/>
+    <tx:annotation-driven order="2"/>
 
     <!-- spring-session  -->
     <bean class="org.springframework.session.data.redis.config.annotation.web.http.RedisHttpSessionConfiguration"/>

@@ -9,7 +9,6 @@ import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -50,7 +49,7 @@ public class UserServiceImplTest {
 
     @Test
     public void emailValidate() throws Exception {
-        boolean result = userService.emailValidate(25, "14a4225f-6bc2-4fdb-aa22-7948cecbe04e", new RedisCache());
+        boolean result = userService.emailValidate("emailemail", "14a4225f-6bc2-4fdb-aa22-7948cecbe04e", new RedisCache());
         Assert.assertTrue(result);
     }
 
@@ -79,7 +78,7 @@ public class UserServiceImplTest {
 
     @Test
     public void testUserExsit() throws Exception {
-        boolean userExsit = userService.userExsit("85998282@qq.com", 2);
+        boolean userExsit = userService.userExist("85998282@qq.com", 2);
         Assert.assertTrue(userExsit);
     }
 }

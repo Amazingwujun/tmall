@@ -8,13 +8,15 @@ import java.util.Set;
 public interface IUserService {
 
     /**
+     * 通过用户名获取用户对象
      *
      * @param username
-     * @return
+     * @return 用户信息
      */
     User getUserByUsername(String username);
 
     /**
+     * 通过用户名获得用户角色
      *
      * @param username
      * @return
@@ -22,6 +24,7 @@ public interface IUserService {
     Set<String> getRoleNamesByUsername(String username);
 
     /**
+     * 通过用户名获取权限
      *
      * @param username
      * @return
@@ -29,6 +32,7 @@ public interface IUserService {
     Set<String> getPermissionsByUserName(String username);
 
     /**
+     * 用户注册
      *
      * @param user
      * @return
@@ -36,12 +40,21 @@ public interface IUserService {
     boolean register(User user);
 
     /**
+     * 通过查询参数和类型，检查用户是否存在
      *
-     * @param query 查询字符串
-     * @param type 1_username,2_email,3_phone
+     * @param query
+     * @param type  1_username,2_email,3_phone
      * @return
      */
-    boolean userExsit(String query, Integer type);
+    boolean userExist(String query, Integer type);
 
-    boolean emailValidate(Integer userId, String code, Cache cache);
+    /**
+     * 验证用户邮箱
+     *
+     * @param username 用户ID
+     * @param token    用户上传验证码
+     * @param cache    RedisCache
+     * @return
+     */
+    boolean emailValidate(String username, String token, Cache cache);
 }
