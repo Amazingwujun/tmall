@@ -29,12 +29,13 @@ public class ExceptionHandleController {
     /**
      * 登录异常
      *
-     * @param request  qingqiu
-     * @param response xiangyng
+     * @param request
+     * @param response
      * @return JSONObject
      */
     @ExceptionHandler(AuthenticationException.class)
-    public JSONObject authenticationExceptionHandel(AuthenticationException e, HttpServletRequest request, HttpServletResponse response) {
+    public JSONObject authenticationExceptionHandel(AuthenticationException e, HttpServletRequest request,
+                                                    HttpServletResponse response) {
         log.debug(e.getMessage(), e);
 
         String msg;
@@ -60,6 +61,7 @@ public class ExceptionHandleController {
     /**
      * 未登录异常
      *
+     * @param e
      * @return JSONObject
      */
     @ExceptionHandler(UnauthenticatedException.class)
@@ -72,10 +74,11 @@ public class ExceptionHandleController {
     /**
      * 数据校检异常
      *
+     * @param e
      * @return JSONObject
      */
     @ExceptionHandler(BindException.class)
-    public JSONObject validExcetpionHandle(BindException e) {
+    public JSONObject validExceptionHandle(BindException e) {
         log.debug(e.getMessage(), e);
 
         String message = getMessage(e);
@@ -85,9 +88,10 @@ public class ExceptionHandleController {
 
     /**
      * 数据校检异常,当参数含有注解{@code @RequestBody}时,
-     * {@link org.springframework.web.servlet.mvc.method.annotation.RequestResponseBodyMethodProcessor} 抛出的异常为
+     * {@link org.springframework.web.servlet.mvc.method.annotation.RequestResponseBodyMethodProcessor} 抛出的异常
      * {@link MethodArgumentNotValidException}
      *
+     * @param e
      * @return JSONObject
      */
     @ExceptionHandler(MethodArgumentNotValidException.class)
@@ -99,6 +103,10 @@ public class ExceptionHandleController {
         return JSONObject.error(message, 1);
     }
 
+    /**
+     * @param e
+     * @return
+     */
     private String getMessage(Exception e) {
         if (e instanceof MethodArgumentNotValidException) {
             MethodArgumentNotValidException validException = (MethodArgumentNotValidException) e;

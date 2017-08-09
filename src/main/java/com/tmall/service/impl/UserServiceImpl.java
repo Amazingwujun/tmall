@@ -53,7 +53,7 @@ public class UserServiceImpl implements IUserService {
      */
     @Override
     public User getUserByUsername(String username) {
-        Assert.hasText(username,"用户名不能为空");
+        Assert.hasText(username, "用户名不能为空");
 
         return userDao.selectByUsername(username);
     }
@@ -66,7 +66,7 @@ public class UserServiceImpl implements IUserService {
      */
     @Override
     public Set<String> getRoleNamesByUsername(String username) {
-        Assert.hasText(username,"用户名不能为空");
+        Assert.hasText(username, "用户名不能为空");
 
         return userDao.selectRolesNameByUserName(username);
     }
@@ -79,7 +79,7 @@ public class UserServiceImpl implements IUserService {
      */
     @Override
     public Set<String> getPermissionsByUserName(String username) {
-        Assert.hasText(username,"用户名不能为空");
+        Assert.hasText(username, "用户名不能为空");
 
         return userDao.selectPermissionsByUserName(username);
     }
@@ -95,15 +95,15 @@ public class UserServiceImpl implements IUserService {
         Assert.notNull(user, "注册用户不能为空");
 
         if (userExist(user.getEmail(), 2) ||
-                userExist(user.getPhone(), 3)||
-                userExist(user.getUsername(),1)) return false; //保证username,email,phone的唯一性
+                userExist(user.getPhone(), 3) ||
+                userExist(user.getUsername(), 1)) return false; //保证username,email,phone的唯一性
 
-            String md5Password = DigestUtils.md5DigestAsHex(user.getPassword().getBytes());
+        String md5Password = DigestUtils.md5DigestAsHex(user.getPassword().getBytes());
         user.setPassword(md5Password);
         int result = userDao.insertSelective(user);
         if (result > 0) {   //新开线程执行邮件发送任务,防止阻塞
-            synchronized (this){
-                emailUtils.setStrategy(user,1); //注入邮件发送对象
+            synchronized (this) {
+                emailUtils.setStrategy(user, 1); //注入邮件发送对象
                 executor.execute(emailUtils);
             }
         }
@@ -186,11 +186,10 @@ public class UserServiceImpl implements IUserService {
     }
 
     /**
-     *
      * @param key
      * @param type
      */
-    public boolean forgetPassword(String key,Integer type) {
+    public boolean forgetPassword(String key, Integer type) {
         if (StringUtils.isEmpty(key) || type == null) {
             throw new IllegalArgumentException("方法参数异常");
         }
@@ -201,7 +200,7 @@ public class UserServiceImpl implements IUserService {
             //用户名
             user = userDao.selectByUsername(key);
             synchronized (this) {
-                emailUtils.setStrategy(user,2);
+                emailUtils.setStrategy(user, 2);
                 executor.execute(emailUtils);
             }
             return true;
@@ -209,12 +208,12 @@ public class UserServiceImpl implements IUserService {
             //邮箱
             user = userDao.selectByEmail(key);
             synchronized (this) {
-                emailUtils.setStrategy(user,2);
+                emailUtils.setStrategy(user, 2);
                 executor.execute(emailUtils);
             }
             return true;
-        }else {
-            log.error("参数type:{} 异常",type);
+        } else {
+            log.error("参数type:{} 异常", type);
             return false;
         }
     }
@@ -227,26 +226,26 @@ public class UserServiceImpl implements IUserService {
      * @param token
      * @return
      */
-    public boolean resetPassword(String username, String password, String token){
+    public boolean resetPassword(String username, String password, String token) {
         if (StringUtils.isEmpty(username) || StringUtils.isEmpty(password) || StringUtils.isEmpty(token)) {
             log.error("参数不能为空");
             return false;
         }
 
-        String key = EmailUtils.EMAIL_FORGETPASSWORD_TOKEN+username; //获得key
+        String key = EmailUtils.EMAIL_FORGETPASSWORD_TOKEN + username; //获得key
         Cache<Object, Object> cache = cacheManager.getCache(com.tmall.common.constant.Cache.COMMON_USE_CACHE);
         String tokenCache = (String) cache.get(key);
-        if (!key.equals(tokenCache)) {
-            log.info("用户:{} 重置密码的token不匹配",username);
+        if (!token.equals(tokenCache)) {
+            log.info("用户:{} 重置密码的token不匹配", username);
             return false;
-        }else {
+        } else {
             cache.remove(key);
         }
 
-        Integer result = userDao.updatePasswordByUsername(username, password);
+        Integer result = userDao.updatePasswordByUsername(username, DigestUtils.md5DigestAsHex(password.getBytes()));
         if (result > 0) {
             return true;
-        }else {
+        } else {
             return false;
         }
     }

@@ -180,13 +180,13 @@ public class UserController {
     /**
      * 重置密码
      *
-     * @param user 接收username,password这两个参数
+     * @param user  接收username,password这两个参数
      * @param token 重置密码必须的令牌
      * @return
      */
     @RequestMapping("resetPassword")
     public JSONObject resetPassword(@Validated(ResetPassword.class) User user, String token) {
-        if (StringUtils.isEmpty(token)) return JSONObject.error("token为空,无法重置密码",1);
+        if (StringUtils.isEmpty(token)) return JSONObject.error("token为空,无法重置密码", 1);
 
         boolean result = userService.resetPassword(user.getUsername(), user.getPassword(), token);
 
