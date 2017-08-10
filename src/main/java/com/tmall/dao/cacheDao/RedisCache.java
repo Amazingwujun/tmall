@@ -12,6 +12,13 @@ import redis.clients.jedis.Jedis;
 import java.io.IOException;
 import java.util.*;
 
+/**
+ * 使用Redis实现{@link org.apache.shiro.cache},替换掉shiro默认的EHCache实现,
+ * 以便实现缓存的分布式及高可用.
+ *
+ * @param <K>
+ * @param <V>
+ */
 public class RedisCache<K, V> implements Cache<K, V> {
 
     private static final Logger log = LoggerFactory.getLogger(RedisCache.class);
@@ -154,6 +161,10 @@ public class RedisCache<K, V> implements Cache<K, V> {
      * @throws CacheException
      */
     public V put(K key,Integer seconds, V value) throws CacheException {
+        if (key == null) {
+            return null;
+        }
+
         Jedis cache = null;
 
         try {

@@ -18,7 +18,7 @@ import java.util.Set;
 @ContextConfiguration(
         {"classpath:spring/spring-core.xml"}
 )
-public class UserServiceImplTest {
+public class EuserServiceImplTest {
     @Autowired
     IUserService userService;
 

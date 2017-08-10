@@ -36,6 +36,9 @@
             </bean>
         </mvc:message-converters>
     </mvc:annotation-driven>
+    <!--开启容器默认servlet,以便放开对静态资源的拦截-->
+    <mvc:default-servlet-handler/>
+
 
     <!-- 文件上传 -->
     <bean id="multipartResolver" class="org.springframework.web.multipart.commons.CommonsMultipartResolver">

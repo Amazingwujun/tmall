@@ -1,12 +1,12 @@
 package com.tmall.service.impl;
 
 import com.tmall.common.annotation.Datasource;
+import com.tmall.common.constant.Euser;
 import com.tmall.dao.DBDao.UserDao;
 import com.tmall.entity.po.User;
 import com.tmall.service.IUserService;
 import com.tmall.utils.dynamicDatasource.DynamicDatasourceHandle;
 import com.tmall.utils.email.EmailUtils;
-import com.tmall.utils.redis.RedisUtils;
 import org.apache.shiro.cache.Cache;
 import org.apache.shiro.cache.CacheManager;
 import org.slf4j.Logger;
@@ -17,7 +17,6 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
 import org.springframework.util.DigestUtils;
 import org.springframework.util.StringUtils;
-import redis.clients.jedis.Jedis;
 
 import java.util.Set;
 import java.util.concurrent.ExecutorService;
@@ -49,6 +48,7 @@ public class UserServiceImpl implements IUserService {
      * 通过用户名获取用户对象
      *
      * @param username
+     *
      * @return
      */
     @Override
@@ -62,6 +62,7 @@ public class UserServiceImpl implements IUserService {
      * 通过用户名获得用户角色
      *
      * @param username
+     *
      * @return
      */
     @Override
@@ -75,6 +76,7 @@ public class UserServiceImpl implements IUserService {
      * 通过用户名获取权限
      *
      * @param username
+     *
      * @return
      */
     @Override
@@ -88,15 +90,16 @@ public class UserServiceImpl implements IUserService {
      * 普通用户注册
      *
      * @param user
+     *
      * @return
      */
     @Override
     public boolean register(User user) {
         Assert.notNull(user, "注册用户不能为空");
 
-        if (userExist(user.getEmail(), 2) ||
-                userExist(user.getPhone(), 3) ||
-                userExist(user.getUsername(), 1)) return false; //保证username,email,phone的唯一性
+        if (userExist(user.getEmail(), Euser.EMAIL.getKey()) ||
+                userExist(user.getPhone(), Euser.PHONE.getKey()) ||
+                userExist(user.getUsername(), Euser.USERNAME.getKey())) return false; //保证username,email,phone的唯一性
 
         String md5Password = DigestUtils.md5DigestAsHex(user.getPassword().getBytes());
         user.setPassword(md5Password);
@@ -118,13 +121,14 @@ public class UserServiceImpl implements IUserService {
      * @param username 用户ID
      * @param token    用户上传验证码
      * @param cache    RedisCache
-     * @return
+     *
+     * @return true, 如果操作成功
      */
     @Override
     @Transactional
     @Datasource(DynamicDatasourceHandle.REMOTE_DB)
     public boolean emailValidate(String username, String token, Cache cache) {
-        if (StringUtils.isEmpty(username) || StringUtils.isEmpty(token) || cache == null) {
+        if (StringUtils.hasText(username) || StringUtils.hasText(token) || cache == null) {
             throw new IllegalArgumentException("方法参数异常");
         }
 
@@ -154,61 +158,61 @@ public class UserServiceImpl implements IUserService {
     /**
      * 通过查询参数和类型，检查用户是否存在
      *
-     * @param query
+     * @param query 查询参数
      * @param type  1_username,2_email,3_phone
-     * @return
+     *
+     * @return true, 如果操作成功
      */
     public boolean userExist(String query, Integer type) {
-        if (StringUtils.isEmpty(query) || type == null) {
+        if (StringUtils.hasText(query) || type == null) {
             throw new IllegalArgumentException("方法参数异常");
         }
 
-        Integer result;
+        Integer result = 0;
 
-        switch (type) {
-            case 1:
-                //根据用户名查询
-                result = userDao.queryUserByUsername(query);
-                break;
-            case 2:
-                //根据邮箱查询
-                result = userDao.queryUserByEmail(query);
-                break;
-            case 3:
-                //根据手机号码查询
-                result = userDao.queryUserByPhone(query);
-                break;
-            default:
-                throw new IllegalArgumentException("参数type:" + type + "异常");
+        if (Euser.USERNAME.getKey() == type) {
+            result = userDao.queryUserByUsername(query);
+        }
+
+        if (Euser.EMAIL.getKey() == type) {
+            result = userDao.queryUserByEmail(query);
+        }
+
+        if (Euser.PHONE.getKey() == type) {
+            result = userDao.queryUserByPhone(query);
         }
 
         return result > 0;
     }
 
     /**
-     * @param key
-     * @param type
+     * 忘记密码,发送验证邮件
+     *
+     * @param key  确定用户身份的key,username or email
+     * @param type 1_username,2_email
+     *
+     * @return true, 如果操作成功
      */
     public boolean forgetPassword(String key, Integer type) {
-        if (StringUtils.isEmpty(key) || type == null) {
+        if (StringUtils.hasText(key) || type == null) {
             throw new IllegalArgumentException("方法参数异常");
         }
 
         User user;
 
-        if (1 == type) {
+        if (Euser.USERNAME.getKey() == type) {
             //用户名
             user = userDao.selectByUsername(key);
             synchronized (this) {
-                emailUtils.setStrategy(user, 2);
+                emailUtils.setStrategy(user, Euser.USERNAME.getKey());
                 executor.execute(emailUtils);
             }
             return true;
-        } else if (2 == type) {
+        } else if (Euser.EMAIL.getKey() == type) {
             //邮箱
             user = userDao.selectByEmail(key);
             synchronized (this) {
-                emailUtils.setStrategy(user, 2);
+                emailUtils.setStrategy(user, Euser.EMAIL.getKey());
                 executor.execute(emailUtils);
             }
             return true;
@@ -219,15 +223,16 @@ public class UserServiceImpl implements IUserService {
     }
 
     /**
-     * 重置密码
+     * 重置密码:
      *
-     * @param username
-     * @param password
-     * @param token
-     * @return
+     * @param username 用户名
+     * @param password 新密码
+     * @param token    用于重置密码的令牌
+     *
+     * @return true, 如果操作成功
      */
     public boolean resetPassword(String username, String password, String token) {
-        if (StringUtils.isEmpty(username) || StringUtils.isEmpty(password) || StringUtils.isEmpty(token)) {
+        if (StringUtils.hasText(username) || StringUtils.hasText(password) || StringUtils.hasText(token)) {
             log.error("参数不能为空");
             return false;
         }
@@ -243,11 +248,38 @@ public class UserServiceImpl implements IUserService {
         }
 
         Integer result = userDao.updatePasswordByUsername(username, DigestUtils.md5DigestAsHex(password.getBytes()));
-        if (result > 0) {
-            return true;
-        } else {
+        return result > 0;
+    }
+
+    /**
+     * 登录状态下修改密码
+     *
+     * @param username    用户名
+     * @param newPassword 新密码
+     * @param oldPassword 旧密码
+     *
+     * @return true, 如果操作成功
+     */
+    @Transactional
+    public boolean onlineResetPassword(String username, String newPassword, String oldPassword) {
+        if (StringUtils.hasText(username) || StringUtils.hasText(newPassword) || StringUtils.hasText(oldPassword)) {
+            log.error("参数不能为空");
             return false;
         }
+
+        User user = userDao.selectByUsername(username);
+        if (user == null) {
+            log.debug("用户:{} 不存在", username);
+            return false;
+        }
+
+        if (!DigestUtils.md5DigestAsHex(oldPassword.getBytes()).equals(user.getPassword())) {
+            log.debug("用户:{} 的旧密码错误", username);
+            return false;
+        }
+
+        Integer result = userDao.updatePasswordByUsername(username, DigestUtils.md5DigestAsHex(newPassword.getBytes()));
+        return result > 0;
     }
 
 }

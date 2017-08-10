@@ -17,7 +17,7 @@ import java.util.Map;
 import java.util.UUID;
 
 /**
- * 
+ * 邮件发送工具类
  */
 public class EmailUtils implements Runnable {
 
@@ -91,7 +91,7 @@ public class EmailUtils implements Runnable {
     }
 
     /**
-     * 这个功能结合前端页面来处理,所以只是做了半成品
+     * 这个功能结合前端页面来处理,所以只是个半成品
      *
      * @param user
      */

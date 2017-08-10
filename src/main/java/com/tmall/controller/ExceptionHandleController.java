@@ -24,7 +24,7 @@ import java.util.List;
 @ControllerAdvice
 public class ExceptionHandleController {
 
-    private static final Logger log = LoggerFactory.getLogger(ExceptionHandleController.class);
+    private final Logger log = LoggerFactory.getLogger(getClass());
 
     /**
      * 登录异常
@@ -68,7 +68,7 @@ public class ExceptionHandleController {
     public JSONObject unAuthenticationExceptionHandle(UnauthenticatedException e) {
         log.debug(e.getMessage(), e);
 
-        return JSONObject.error(e.getMessage(), 1);
+        return JSONObject.error("用户未登录或认证", 1);
     }
 
     /**
@@ -104,6 +104,8 @@ public class ExceptionHandleController {
     }
 
     /**
+     * 异常消息获取
+     *
      * @param e
      * @return
      */
