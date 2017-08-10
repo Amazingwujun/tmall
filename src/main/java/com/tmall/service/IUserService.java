@@ -42,9 +42,9 @@ public interface IUserService {
     /**
      * 通过查询参数和类型，检查用户是否存在
      *
-     * @param query
+     * @param query 查询参数
      * @param type  1_username,2_email,3_phone
-     * @return
+     * @return true, 如果操作成功
      */
     boolean userExist(String query, Integer type);
 
@@ -54,25 +54,36 @@ public interface IUserService {
      * @param username 用户ID
      * @param token    用户上传验证码
      * @param cache    RedisCache
-     * @return
+     * @return  true, 如果操作成功
      */
     boolean emailValidate(String username, String token, Cache cache);
 
     /**
-     * 忘记密码
+     * 忘记密码,发送验证邮件
      *
-     * @param key
-     * @param type
+     * @param key 确定用户身份的key,username or email
+     * @param type 1_username,2_email
+     * @return true, 如果操作成功
      */
-    boolean forgetPassword(String key,Integer type);
+    boolean forgetPassword(String key, Integer type);
 
     /**
      * 重置密码
      *
-     * @param username
-     * @param password
-     * @param token
-     * @return
+     * @param username 用户名
+     * @param password 新密码
+     * @param token 用于重置密码的令牌
+     * @return true, 如果操作成功
      */
     boolean resetPassword(String username, String password, String token);
+
+    /**
+     * 登录状态下修改密码
+     *
+     * @param username
+     * @param newPassword
+     * @param oldPassword
+     * @return
+     */
+    boolean onlineResetPassword(String username, String newPassword, String oldPassword);
 }

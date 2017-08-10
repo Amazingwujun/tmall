@@ -9,6 +9,7 @@ import com.tmall.service.IUserService;
 import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.authc.UnknownAccountException;
 import org.apache.shiro.authc.UsernamePasswordToken;
+import org.apache.shiro.authz.annotation.RequiresAuthentication;
 import org.apache.shiro.cache.CacheManager;
 import org.apache.shiro.subject.Subject;
 import org.slf4j.Logger;
@@ -47,7 +48,8 @@ public class UserController {
             return JSONObject.successWithMessage("用户已登录");
         }
 
-        subject.login(token);
+        subject.login(token); /**异常抛到 {@code ExceptionHandleController 处理}*/
+        log.debug("用户:{} 登录成功",user.getUsername());
 
         User returnUser = userService.getUserByUsername(user.getUsername());
         if (returnUser == null) {
@@ -86,6 +88,8 @@ public class UserController {
         }
 
         subject.logout();
+        log.debug("用户:{} 注销成功",subject.getPrincipal());
+
         return JSONObject.successWithMessage("注销成功");
     }
 
@@ -97,6 +101,8 @@ public class UserController {
      */
     @RequestMapping("register")
     public JSONObject register(@Validated(Register.class) User user) {
+        log.debug("用户:{} 开始注册",user.getUsername());
+
         user.setRole(2);//普通用户角色
         boolean result = userService.register(user);
         return result ? JSONObject.successWithMessage("注册成功") : JSONObject.error("注册失败", 1);
@@ -111,7 +117,7 @@ public class UserController {
      */
     @RequestMapping("checkUserExist")
     public JSONObject checkUserExist(String query, Integer type) {
-        if (StringUtils.isEmpty(query) || type == null) {
+        if (StringUtils.hasText(query) || type == null) {
             return JSONObject.error("参数异常", 1);
         }
 
@@ -154,7 +160,7 @@ public class UserController {
      */
     @RequestMapping("emailValidate")
     public JSONObject emailValidate(String username, String token) {
-        if (StringUtils.isEmpty(username) || StringUtils.isEmpty(token)) {
+        if (StringUtils.hasText(username) || StringUtils.hasText(token)) {
             return JSONObject.error("参数异常", 1);
         }
         boolean result = userService.emailValidate(username, token, cacheManager.getCache("COMMON_CACHE"));
@@ -171,11 +177,11 @@ public class UserController {
      */
     @RequestMapping("forgetPassword")
     public JSONObject forgetPassword(String key, Integer type) {
-        if (StringUtils.isEmpty(key) || type == null) {
+        if (StringUtils.hasText(key) || type == null) {
             return JSONObject.error("参数异常", 1);
         }
 
-        //判断用户提供之参数是否存在
+        //判断查询参数是否存在
         boolean userExist = userService.userExist(key, type);
         if (!userExist) {
             return JSONObject.error("用户名或邮箱不存在", 1);
@@ -194,10 +200,29 @@ public class UserController {
      */
     @RequestMapping("resetPassword")
     public JSONObject resetPassword(@Validated(ResetPassword.class) User user, String token) {
-        if (StringUtils.isEmpty(token)) return JSONObject.error("token为空,无法重置密码", 1);
+        if (StringUtils.hasText(token)) return JSONObject.error("token为空,无法重置密码", 1);
 
         boolean result = userService.resetPassword(user.getUsername(), user.getPassword(), token);
 
         return result ? JSONObject.successWithMessage("密码重置成功") : JSONObject.error("密码重置失败", 1);
+    }
+
+    /**
+     * 登录状态修改密码
+     *
+     * @param newPassword 新密码的长度必须大于等于6位
+     * @param oldPassword
+     * @return
+     */
+    @RequiresAuthentication
+    @RequestMapping("onlineResetPassword")
+    public JSONObject onlineResetPassword(String newPassword,String oldPassword) {
+        if (StringUtils.hasText(newPassword) || StringUtils.hasText(oldPassword) || newPassword.length() < 6) {
+            return JSONObject.error("参数异常", 1);
+        }
+        String  username = (String) SecurityUtils.getSubject().getPrincipal();
+        boolean result = userService.onlineResetPassword(username, newPassword, oldPassword);
+
+        return result ? JSONObject.successWithMessage("密码修改成功") : JSONObject.error("密码修改失败", 1);
     }
 }
