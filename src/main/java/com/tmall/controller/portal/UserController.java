@@ -1,12 +1,13 @@
 package com.tmall.controller.portal;
 
-import com.tmall.common.validatorOrder.ResetPassword;
-import com.tmall.entity.vo.JSONObject;
 import com.tmall.common.validatorOrder.Login;
 import com.tmall.common.validatorOrder.Register;
+import com.tmall.common.validatorOrder.ResetPassword;
 import com.tmall.entity.po.User;
+import com.tmall.entity.vo.JSONObject;
 import com.tmall.service.IUserService;
 import org.apache.shiro.SecurityUtils;
+import org.apache.shiro.authc.UnknownAccountException;
 import org.apache.shiro.authc.UsernamePasswordToken;
 import org.apache.shiro.cache.CacheManager;
 import org.apache.shiro.subject.Subject;
@@ -16,7 +17,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping("user")
@@ -39,15 +41,19 @@ public class UserController {
     @RequestMapping("login")
     public JSONObject login(@Validated(Login.class) User user) {
         UsernamePasswordToken token = new UsernamePasswordToken(user.getUsername(), user.getPassword());
-        token.setRememberMe(true);
+        token.setRememberMe(true); //记住登录状态
         Subject subject = SecurityUtils.getSubject();
         if (subject.getPrincipal() != null) {
             return JSONObject.successWithMessage("用户已登录");
         }
 
-        subject.login(token); /**异常抛到 {@code ExceptionHandleController 处理}*/
+        subject.login(token);
 
         User returnUser = userService.getUserByUsername(user.getUsername());
+        if (returnUser == null) {
+            throw new UnknownAccountException();    //抛给ExceptionHandleController处理
+        }
+
         returnUser.setPassword("");
         returnUser.setPhone(phoneDigest(returnUser.getPhone()));
         return JSONObject.success("login success", returnUser);
@@ -60,9 +66,7 @@ public class UserController {
      * @return
      */
     private String phoneDigest(String phone) {
-        if (phone == null) {
-            return "";
-        }
+        Assert.hasText(phone, "电话号码不能为空");
 
         StringBuilder builder = new StringBuilder();
         builder.append(phone.substring(0, 2)).append("*******").append(phone.charAt(phone.length() - 1));
@@ -111,9 +115,9 @@ public class UserController {
             return JSONObject.error("参数异常", 1);
         }
 
-        boolean userExsit = userService.userExist(query, type);
+        boolean userExist = userService.userExist(query, type);
 
-        return userExsit ? JSONObject.successWithMessage("用户已经存在") : JSONObject.error("用户不存在", 1);
+        return userExist ? JSONObject.successWithMessage("用户已经存在") : JSONObject.error("用户不存在", 1);
     }
 
     /**
@@ -132,6 +136,10 @@ public class UserController {
         }
 
         User user = userService.getUserByUsername(username);
+        if (user == null) {
+            throw new UnknownAccountException(); //抛给ExceptionHandleController处理
+        }
+
         user.setPassword("");
         user.setPhone(phoneDigest(user.getPhone()));
         return JSONObject.success(null, user);

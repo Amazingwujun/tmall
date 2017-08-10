@@ -94,9 +94,12 @@ public class UserServiceImpl implements IUserService {
     public boolean register(User user) {
         Assert.notNull(user, "注册用户不能为空");
 
-        if (userExist(user.getEmail(), 2) ||
-                userExist(user.getPhone(), 3) ||
-                userExist(user.getUsername(), 1)) return false; //保证username,email,phone的唯一性
+        //保证username,email,phone的唯一性
+        if (userExist(user.getEmail(), 2) || userExist(user.getPhone(), 3) ||
+                userExist(user.getUsername(), 1)) {
+            log.debug("用户注册的用户名或邮箱或电话已经存在");
+            return false; 
+        }
 
         String md5Password = DigestUtils.md5DigestAsHex(user.getPassword().getBytes());
         user.setPassword(md5Password);
@@ -135,7 +138,7 @@ public class UserServiceImpl implements IUserService {
         }
 
         if (user.getValidate()) {
-            log.info("用户邮箱:{} 已经验证", user.getEmail());
+            log.debug("用户邮箱:{} 已经验证", user.getEmail());
             return true;
         }
 
@@ -147,6 +150,7 @@ public class UserServiceImpl implements IUserService {
             int i = userDao.updateByPrimaryKeySelective(user);
             return i > 0;
         } else {
+            log.debug("校检码过期或校检码比对不通过");
             return false;   //校检码过期或校检码比对不通过
         }
     }
@@ -158,6 +162,7 @@ public class UserServiceImpl implements IUserService {
      * @param type  1_username,2_email,3_phone
      * @return
      */
+
     public boolean userExist(String query, Integer type) {
         if (StringUtils.isEmpty(query) || type == null) {
             throw new IllegalArgumentException("方法参数异常");
@@ -179,13 +184,16 @@ public class UserServiceImpl implements IUserService {
                 result = userDao.queryUserByPhone(query);
                 break;
             default:
-                throw new IllegalArgumentException("参数type:" + type + "异常");
+                log.debug("参数type:{} 类型无法匹配!!!", type);
+                return false;
         }
 
         return result > 0;
     }
 
     /**
+     * 忘记密码
+     *
      * @param key
      * @param type
      */
@@ -197,6 +205,8 @@ public class UserServiceImpl implements IUserService {
         User user;
 
         if (1 == type) {
+            log.debug("传参类型为用户名");
+
             //用户名
             user = userDao.selectByUsername(key);
             synchronized (this) {
@@ -205,6 +215,8 @@ public class UserServiceImpl implements IUserService {
             }
             return true;
         } else if (2 == type) {
+            log.debug("传参类型为邮箱");
+
             //邮箱
             user = userDao.selectByEmail(key);
             synchronized (this) {
@@ -213,7 +225,7 @@ public class UserServiceImpl implements IUserService {
             }
             return true;
         } else {
-            log.error("参数type:{} 异常", type);
+            log.error("参数type:{} 无法处理", type);
             return false;
         }
     }
@@ -228,8 +240,7 @@ public class UserServiceImpl implements IUserService {
      */
     public boolean resetPassword(String username, String password, String token) {
         if (StringUtils.isEmpty(username) || StringUtils.isEmpty(password) || StringUtils.isEmpty(token)) {
-            log.error("参数不能为空");
-            return false;
+            throw new IllegalArgumentException("方法参数异常");
         }
 
         String key = EmailUtils.EMAIL_FORGETPASSWORD_TOKEN + username; //获得key
@@ -239,6 +250,7 @@ public class UserServiceImpl implements IUserService {
             log.info("用户:{} 重置密码的token不匹配", username);
             return false;
         } else {
+            log.debug("从缓存中移除token");
             cache.remove(key);
         }
 
@@ -246,6 +258,7 @@ public class UserServiceImpl implements IUserService {
         if (result > 0) {
             return true;
         } else {
+            log.debug("数据库更新用户密码失败");
             return false;
         }
     }
