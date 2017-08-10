@@ -236,8 +236,7 @@ public class UserServiceImpl implements IUserService {
      */
     public boolean resetPassword(String username, String password, String token) {
         if (StringUtils.hasText(username) || StringUtils.hasText(password) || StringUtils.hasText(token)) {
-            log.error("参数不能为空");
-            return false;
+            throw new IllegalArgumentException("方法参数异常");
         }
 
         String key = EmailUtils.EMAIL_FORGETPASSWORD_TOKEN + username; //获得key
@@ -267,8 +266,7 @@ public class UserServiceImpl implements IUserService {
     @Transactional
     public boolean onlineResetPassword(String username, String newPassword, String oldPassword) {
         if (StringUtils.hasText(username) || StringUtils.hasText(newPassword) || StringUtils.hasText(oldPassword)) {
-            log.error("参数不能为空");
-            return false;
+            throw new IllegalArgumentException("方法参数异常");
         }
 
         User user = userDao.selectByUsername(username);
