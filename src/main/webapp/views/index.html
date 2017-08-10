@@ -33,7 +33,7 @@
                     <span class="icon-bar"></span>
                     <span class="icon-bar"></span>
                 </button>
-                <a class="navbar-brand" href="#">主页面</a>
+                <a class="navbar-brand" href="/">tmall</a>
             </div>
 
             <!-- Collect the nav links, forms, and other content for toggling -->
@@ -69,7 +69,7 @@
 
     <div class="row">
         <div class="col-xs-6 col-sm-6 col-md-6 col-lg-6 col-sm-offset-3">
-            <form action="/user/login" method="post" class="form-horizontal" role="form">
+            <form action="/user/login" method="post" class="form-horizontal" role="form" id="loginForm">
                 <div class="form-group">
                     <legend>用户登录</legend>
                 </div>
@@ -84,7 +84,8 @@
                 <div class="form-group">
                     <label for="password" class="col-sm-2 control-label">Password</label>
                     <div class="col-sm-6">
-                        <input type="password" class="form-control" id="password" name="password" placeholder="Password">
+                        <input type="password" class="form-control" id="password" name="password"
+                               placeholder="Password">
                     </div>
                 </div>
 
@@ -92,7 +93,7 @@
                     <div class="col-sm-offset-2 col-sm-10">
                         <div class="checkbox">
                             <label>
-                                <input type="checkbox"> 记住我
+                                <input type="checkbox" onclick="getJson()"> 记住我
                             </label>
                         </div>
                     </div>
@@ -100,16 +101,77 @@
 
                 <div class="form-group">
                     <div class="col-sm-6 col-sm-offset-2">
-                        <button type="submit" class="btn btn-success btn-block">登录</button>
+                        <button type="button" onclick="getJson()" class="btn btn-success btn-block">登录</button>
                     </div>
                 </div>
             </form>
         </div>
     </div>
+
+    <div class="row">
+        <div class="col-xs-10 col-sm-10 col-md-10 col-lg-10 col-sm-offset-1">
+            <a class=link href=http://www.imooc.com/ >慕课网</a> | <a class=link href=http://www.baidu.com/ >百度</a> |
+            <a class=link href=http://www.zhihu.com/ >知乎</a> | <a class=link href=https://github.com/ >github</a>
+            <p class="text-info"> Copyright © 2017 amazingJun All Rights Reserved </p>
+        </div>
+    </div>
 </div>
-    <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
-    <!-- Include all compiled plugins (below), or include individual files as needed -->
-    <script src="js/bootstrap.min.js"></script>
+
+<ul id="list">
+</ul>
+<p id="test1">dsa</p>
+<!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+<!-- Include all compiled plugins (below), or include individual files as needed -->
+<script src="js/bootstrap.min.js"></script>
+<script>
+    function getJson() {
+
+        var user = {
+            username: $("#username").val(),
+            password: $("#password").val()
+        };
+
+        $.ajax({
+            url: '/user/login',
+            type: 'POST',
+            data: user,
+            timeout: 1000,
+            cache: false,
+            async: false,
+            beforeSend: LoadFunction, //加载执行方法
+            error: errorFunction,  //错误执行方法
+            success: succFunction //成功执行方法
+        });
+
+        function LoadFunction() {
+            $("#list").html('加载中...');
+        }
+
+        function errorFunction() {
+            alert("error");
+        }
+
+        function succFunction(data) {
+            $("#list").html('');
+
+            var jsonObj = eval("(" + data + ")");
+
+            if (jsonObj.code!=0) {
+                alert("登录失败");
+            }
+
+           /* $.each(jsonObj, function (index) {
+                //循环获取数据
+                var code = jsonObj[index].code;
+                var data = jsonObj[index].data;
+                var msg = jsonObj[index].msg;
+                $("#list").html($("#list").html() + "<br>" + code + " - " + data + " - " + msg + "<br/>");
+            });*/
+        }
+    }
+
+
+</script>
 </body>
 </html>
