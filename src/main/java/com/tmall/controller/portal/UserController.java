@@ -1,10 +1,12 @@
 package com.tmall.controller.portal;
 
+import com.tmall.common.constant.Euser;
 import com.tmall.common.validatorOrder.Login;
 import com.tmall.common.validatorOrder.Register;
 import com.tmall.common.validatorOrder.ResetPassword;
 import com.tmall.entity.po.User;
 import com.tmall.entity.vo.JSONObject;
+import com.tmall.security.LoginToken;
 import com.tmall.service.IUserService;
 import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.authc.UnknownAccountException;
@@ -19,6 +21,7 @@ import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
@@ -40,16 +43,27 @@ public class UserController {
      * @return JSONObject
      */
     @RequestMapping("login")
-    public JSONObject login(@Validated(Login.class) User user) {
-        UsernamePasswordToken token = new UsernamePasswordToken(user.getUsername(), user.getPassword());
-        token.setRememberMe(true); //记住登录状态
+    public JSONObject login(@Validated(Login.class) User user,@RequestParam(required = false,defaultValue = "false") boolean rememberMe) {
+        LoginToken token;   //登录令牌
+
+        if (StringUtils.hasText(user.getUsername())) {
+            token = new LoginToken(user.getUsername(), user.getPassword(), Euser.USERNAME.getKey());
+        } else if (StringUtils.hasText(user.getEmail())) {
+            token = new LoginToken(user.getEmail(), user.getPassword(), Euser.EMAIL.getKey());
+        } else if (StringUtils.hasText(user.getPhone())) {
+            token = new LoginToken(user.getPhone(), user.getPassword(), Euser.PHONE.getKey());
+        } else {
+            return JSONObject.error("登录令牌不能为空", 1);
+        }
+
+        token.setRememberMe(rememberMe); //记住登录状态
         Subject subject = SecurityUtils.getSubject();
-        if (subject.getPrincipal() != null) {
+        if (subject.isAuthenticated()) {
             return JSONObject.successWithMessage("用户已登录");
         }
 
-        subject.login(token); /**异常抛到 {@code ExceptionHandleController 处理}*/
-        log.debug("用户:{} 登录成功",user.getUsername());
+        subject.login(token); /*异常抛到 {@code ExceptionHandleController 处理}*/
+        log.debug("用户:{} 登录成功", user.getUsername());
 
         User returnUser = userService.getUserByUsername(user.getUsername());
         if (returnUser == null) {
@@ -88,7 +102,7 @@ public class UserController {
         }
 
         subject.logout();
-        log.debug("用户:{} 注销成功",subject.getPrincipal());
+        log.debug("用户:{} 注销成功", subject.getPrincipal());
 
         return JSONObject.successWithMessage("注销成功");
     }
@@ -101,7 +115,7 @@ public class UserController {
      */
     @RequestMapping("register")
     public JSONObject register(@Validated(Register.class) User user) {
-        log.debug("用户:{} 开始注册",user.getUsername());
+        log.debug("用户:{} 开始注册", user.getUsername());
 
         user.setRole(2);//普通用户角色
         boolean result = userService.register(user);
@@ -117,7 +131,7 @@ public class UserController {
      */
     @RequestMapping("checkUserExist")
     public JSONObject checkUserExist(String query, Integer type) {
-        if (StringUtils.hasText(query) || type == null) {
+        if (!StringUtils.hasText(query) || type == null) {
             return JSONObject.error("参数异常", 1);
         }
 
@@ -160,7 +174,7 @@ public class UserController {
      */
     @RequestMapping("emailValidate")
     public JSONObject emailValidate(String username, String token) {
-        if (StringUtils.hasText(username) || StringUtils.hasText(token)) {
+        if (!StringUtils.hasText(username) || !StringUtils.hasText(token)) {
             return JSONObject.error("参数异常", 1);
         }
         boolean result = userService.emailValidate(username, token, cacheManager.getCache("COMMON_CACHE"));
@@ -177,7 +191,7 @@ public class UserController {
      */
     @RequestMapping("forgetPassword")
     public JSONObject forgetPassword(String key, Integer type) {
-        if (StringUtils.hasText(key) || type == null) {
+        if (!StringUtils.hasText(key) || type == null) {
             return JSONObject.error("参数异常", 1);
         }
 
@@ -200,7 +214,7 @@ public class UserController {
      */
     @RequestMapping("resetPassword")
     public JSONObject resetPassword(@Validated(ResetPassword.class) User user, String token) {
-        if (StringUtils.hasText(token)) return JSONObject.error("token为空,无法重置密码", 1);
+        if (!StringUtils.hasText(token)) return JSONObject.error("token为空,无法重置密码", 1);
 
         boolean result = userService.resetPassword(user.getUsername(), user.getPassword(), token);
 
@@ -216,11 +230,12 @@ public class UserController {
      */
     @RequiresAuthentication
     @RequestMapping("onlineResetPassword")
-    public JSONObject onlineResetPassword(String newPassword,String oldPassword) {
-        if (StringUtils.hasText(newPassword) || StringUtils.hasText(oldPassword) || newPassword.length() < 6) {
+    public JSONObject onlineResetPassword(String newPassword, String oldPassword) {
+        if (!StringUtils.hasText(newPassword) || !StringUtils.hasText(oldPassword) || newPassword.length() < 6) {
             return JSONObject.error("参数异常", 1);
         }
-        String  username = (String) SecurityUtils.getSubject().getPrincipal();
+
+        String username = (String) SecurityUtils.getSubject().getPrincipal();
         boolean result = userService.onlineResetPassword(username, newPassword, oldPassword);
 
         return result ? JSONObject.successWithMessage("密码修改成功") : JSONObject.error("密码修改失败", 1);

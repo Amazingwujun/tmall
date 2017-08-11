@@ -11,6 +11,7 @@ import org.apache.shiro.subject.PrincipalCollection;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.util.StringUtils;
 
 import java.util.Set;
 
@@ -54,14 +55,14 @@ public class UserRealm extends AuthorizingRealm {
      */
     @Override
     protected AuthenticationInfo doGetAuthenticationInfo(AuthenticationToken token) throws AuthenticationException {
-        UsernamePasswordToken loginToken = (UsernamePasswordToken) token;
-        String username = loginToken.getUsername();
+        LoginToken loginToken = (LoginToken) token;
+        String username = loginToken.getUsername(); //username也有可能是email,phone
 
-        if (username == null) {
-            throw new AccountException("用户名不允许为空");
+        if (!StringUtils.hasText(username)) {
+            throw new AccountException("登录令牌不允许为空");
         }
 
-        User user = userService.getUserByUsername(username);
+        User user = userService.getUserByLoginType(username, loginToken.getLoginType());
         if (user == null) {
             throw new UnknownAccountException("未找到用户 [" + username + "]");
         }

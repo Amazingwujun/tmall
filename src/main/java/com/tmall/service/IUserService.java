@@ -86,4 +86,12 @@ public interface IUserService {
      * @return
      */
     boolean onlineResetPassword(String username, String newPassword, String oldPassword);
+
+    /**
+     *
+     * @param principle
+     * @param type
+     * @return
+     */
+    User getUserByLoginType(String principle, Integer type);
 }

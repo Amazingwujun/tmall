@@ -18,7 +18,13 @@ import java.util.Set;
 @ContextConfiguration(
         {"classpath:spring/spring-core.xml"}
 )
-public class EuserServiceImplTest {
+public class UserServiceImplTest {
+    @Test
+    public void onlineResetPassword() throws Exception {
+        boolean b = userService.onlineResetPassword(" ", "sfds", "fdlasjfdls");
+
+    }
+
     @Autowired
     IUserService userService;
 

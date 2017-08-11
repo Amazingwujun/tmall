@@ -10,7 +10,7 @@
     <title>Page Title</title>
 
     <!-- Bootstrap -->
-    <link href="css/bootstrap.min.css" rel="stylesheet">
+    <link href="http://localhost:8080/css/bootstrap.min.css" rel="stylesheet">
 
     <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
     <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
@@ -93,7 +93,7 @@
                     <div class="col-sm-offset-2 col-sm-10">
                         <div class="checkbox">
                             <label>
-                                <input type="checkbox" onclick="getJson()"> 记住我
+                                <input type="checkbox" id="rememberMe" onclick="getValue()"> 记住我
                             </label>
                         </div>
                     </div>
@@ -101,7 +101,7 @@
 
                 <div class="form-group">
                     <div class="col-sm-6 col-sm-offset-2">
-                        <button type="button" onclick="getJson()" class="btn btn-success btn-block">登录</button>
+                        <button type="submit"  class="btn btn-success btn-block">登录</button>
                     </div>
                 </div>
             </form>
@@ -117,23 +117,28 @@
     </div>
 </div>
 
-<ul id="list">
-</ul>
-<p id="test1">dsa</p>
+<p id="test1"></p>
 <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
 <!-- Include all compiled plugins (below), or include individual files as needed -->
-<script src="js/bootstrap.min.js"></script>
+<script src="http://localhost:8080/js/bootstrap.min.js"></script>
 <script>
+
+    function getValue() {
+        var val = $("#rememberMe").val();
+        $("#test1").text(val);
+    }
+
     function getJson() {
 
         var user = {
             username: $("#username").val(),
-            password: $("#password").val()
+            password: $("#password").val(),
+            rememberMe:$("#rememberMe").val()
         };
 
         $.ajax({
-            url: '/user/login',
+            url: 'http://localhost:8080/user/login',
             type: 'POST',
             data: user,
             timeout: 1000,
@@ -157,21 +162,13 @@
 
             var jsonObj = eval("(" + data + ")");
 
-            if (jsonObj.code!=0) {
+            if (jsonObj.code != 0) {
                 alert("登录失败");
-            }
+            }else {
 
-           /* $.each(jsonObj, function (index) {
-                //循环获取数据
-                var code = jsonObj[index].code;
-                var data = jsonObj[index].data;
-                var msg = jsonObj[index].msg;
-                $("#list").html($("#list").html() + "<br>" + code + " - " + data + " - " + msg + "<br/>");
-            });*/
+            }
         }
     }
-
-
 </script>
 </body>
 </html>

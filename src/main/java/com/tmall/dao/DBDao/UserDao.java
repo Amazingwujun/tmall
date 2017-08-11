@@ -31,6 +31,8 @@ public interface UserDao {
 
     User selectByEmail(@Param("email") String email);
 
+    User selectByPhone(@Param("phone") String phone);
+
     /**
      * 根据用户名获取权限
      *

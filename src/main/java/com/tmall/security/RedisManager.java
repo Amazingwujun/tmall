@@ -16,8 +16,12 @@ public class RedisManager implements CacheManager {
     public <K, V> Cache<K, V> getCache(String name) throws CacheException {
         Cache cache = map.get(name);
         if (cache == null) {
-            cache = new RedisCache<>();
-            map.put(name, cache);
+            synchronized (this) {
+                if (cache == null) {
+                    cache = new RedisCache<>();
+                    map.put(name, cache);
+                }
+            }
         }
 
         return cache;

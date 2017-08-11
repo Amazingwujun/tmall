@@ -13,7 +13,7 @@ public class User {
 
     private Integer id;
 
-    @NotBlank(message = "用户名不能为空", groups = {Login.class, Register.class, ResetPassword.class})
+    @NotBlank(message = "用户名不能为空", groups = {Register.class, ResetPassword.class})
     private String username;
 
     @NotBlank(message = "密码不能为空", groups = {Login.class, Register.class, ResetPassword.class})
@@ -38,7 +38,8 @@ public class User {
 
     private Date updateTime;
 
-    public User(Integer id, String username, String password, String email, String phone, Integer role, Boolean validate, Date createTime, Date updateTime) {
+    public User(Integer id, String username, String password, String email, String phone, Integer role,
+                Boolean validate, Date createTime, Date updateTime) {
         this.id = id;
         this.username = username;
         this.password = password;

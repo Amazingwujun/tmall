@@ -48,7 +48,6 @@ public class UserServiceImpl implements IUserService {
      * 通过用户名获取用户对象
      *
      * @param username
-     *
      * @return
      */
     @Override
@@ -62,7 +61,6 @@ public class UserServiceImpl implements IUserService {
      * 通过用户名获得用户角色
      *
      * @param username
-     *
      * @return
      */
     @Override
@@ -76,7 +74,6 @@ public class UserServiceImpl implements IUserService {
      * 通过用户名获取权限
      *
      * @param username
-     *
      * @return
      */
     @Override
@@ -90,7 +87,6 @@ public class UserServiceImpl implements IUserService {
      * 普通用户注册
      *
      * @param user
-     *
      * @return
      */
     @Override
@@ -124,14 +120,13 @@ public class UserServiceImpl implements IUserService {
      * @param username 用户ID
      * @param token    用户上传验证码
      * @param cache    RedisCache
-     *
      * @return true, 如果操作成功
      */
     @Override
     @Transactional
     @Datasource(DynamicDatasourceHandle.REMOTE_DB)
     public boolean emailValidate(String username, String token, Cache cache) {
-        if (StringUtils.hasText(username) || StringUtils.hasText(token) || cache == null) {
+        if (!StringUtils.hasText(username) || !StringUtils.hasText(token) || cache == null) {
             throw new IllegalArgumentException("方法参数异常");
         }
 
@@ -163,11 +158,10 @@ public class UserServiceImpl implements IUserService {
      *
      * @param query 查询参数
      * @param type  1_username,2_email,3_phone
-     *
      * @return true, 如果操作成功
      */
     public boolean userExist(String query, Integer type) {
-        if (StringUtils.hasText(query) || type == null) {
+        if (!StringUtils.hasText(query) || type == null) {
             throw new IllegalArgumentException("方法参数异常");
         }
 
@@ -193,11 +187,10 @@ public class UserServiceImpl implements IUserService {
      *
      * @param key  确定用户身份的key,username or email
      * @param type 1_username,2_email
-     *
      * @return true, 如果操作成功
      */
     public boolean forgetPassword(String key, Integer type) {
-        if (StringUtils.hasText(key) || type == null) {
+        if (!StringUtils.hasText(key) || type == null) {
             throw new IllegalArgumentException("方法参数异常");
         }
 
@@ -231,11 +224,10 @@ public class UserServiceImpl implements IUserService {
      * @param username 用户名
      * @param password 新密码
      * @param token    用于重置密码的令牌
-     *
      * @return true, 如果操作成功
      */
     public boolean resetPassword(String username, String password, String token) {
-        if (StringUtils.hasText(username) || StringUtils.hasText(password) || StringUtils.hasText(token)) {
+        if (!StringUtils.hasText(username) || !StringUtils.hasText(password) || !StringUtils.hasText(token)) {
             throw new IllegalArgumentException("方法参数异常");
         }
 
@@ -260,12 +252,11 @@ public class UserServiceImpl implements IUserService {
      * @param username    用户名
      * @param newPassword 新密码
      * @param oldPassword 旧密码
-     *
      * @return true, 如果操作成功
      */
     @Transactional
     public boolean onlineResetPassword(String username, String newPassword, String oldPassword) {
-        if (StringUtils.hasText(username) || StringUtils.hasText(newPassword) || StringUtils.hasText(oldPassword)) {
+        if (!StringUtils.hasText(username) || !StringUtils.hasText(newPassword) || !StringUtils.hasText(oldPassword)) {
             throw new IllegalArgumentException("方法参数异常");
         }
 
@@ -284,4 +275,28 @@ public class UserServiceImpl implements IUserService {
         return result > 0;
     }
 
+    /**
+     * 根据用户的登录类型和登录名来获取用户
+     *
+     * @param principle 三种可能,1_username,2_email,3_phone
+     * @param type
+     *
+     * @return
+     */
+    @Override
+    public User getUserByLoginType(String principle, Integer type) {
+        if (!StringUtils.hasText(principle) || type == null) {
+            throw new IllegalArgumentException("方法参数异常");
+        }
+
+        if (Euser.USERNAME.getKey() == type) {
+            return userDao.selectByUsername(principle);
+        } else if (Euser.EMAIL.getKey() == type) {
+            return userDao.selectByEmail(principle);
+        } else if (Euser.PHONE.getKey() == type) {
+            return userDao.selectByPhone(principle);
+        } else {
+            throw new IllegalArgumentException("方法参数异常");
+        }
+    }
 }
