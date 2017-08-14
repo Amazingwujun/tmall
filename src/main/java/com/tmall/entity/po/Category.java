@@ -1,14 +1,25 @@
 package com.tmall.entity.po;
 
+import com.tmall.common.validatorOrder.category.Add;
+import com.tmall.common.validatorOrder.category.Update;
+import org.hibernate.validator.constraints.NotBlank;
+
+import javax.validation.constraints.NotNull;
 import java.util.Date;
 
 public class Category {
+    //品类ID
+    @NotNull(groups = {Update.class},message = "品类ID不能为空")
     private Integer id;
 
+    //父品类
     private Integer parentId;
 
+    //品类名称
+    @NotBlank(groups = {Add.class,Update.class},message = "品类名不能为空")
     private String name;
 
+    //品类状态
     private Integer status;
 
     private Date createTime;

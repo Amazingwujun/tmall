@@ -1,8 +1,8 @@
 package com.tmall.entity.po;
 
-import com.tmall.common.validatorOrder.Login;
-import com.tmall.common.validatorOrder.Register;
-import com.tmall.common.validatorOrder.ResetPassword;
+import com.tmall.common.validatorOrder.user.Login;
+import com.tmall.common.validatorOrder.user.Register;
+import com.tmall.common.validatorOrder.user.ResetPassword;
 import org.hibernate.validator.constraints.Length;
 import org.hibernate.validator.constraints.NotBlank;
 

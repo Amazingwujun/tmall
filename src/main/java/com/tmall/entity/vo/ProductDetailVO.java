@@ -1,10 +1,18 @@
-package com.tmall.entity.po;
+package com.tmall.entity.vo;
+
+import com.alibaba.fastjson.annotation.JSONCreator;
+import com.alibaba.fastjson.annotation.JSONField;
 
 import java.math.BigDecimal;
-import java.util.Date;
 
-public class Product {
+/**
+ * 产品的VO
+ *
+ */
+public class ProductDetailVO {
+
     //产品ID
+    @JSONField
     private Integer id;
 
     //所属品类ID
@@ -34,27 +42,26 @@ public class Product {
     //产品状态
     private Integer status;
 
-    private Date createTime;
+    //图片服务器地址
+    private String imageHost;
 
-    private Date updateTime;
+    //父品类ID
+    private String parentCategoryId;
 
-    public Product(Integer id, Integer categoryId, String name, String subTitle, String mainImage, String detail, String subImage, BigDecimal price, Integer stock, Integer status, Date createTime, Date updateTime) {
-        this.id = id;
-        this.categoryId = categoryId;
-        this.name = name;
-        this.subTitle = subTitle;
-        this.mainImage = mainImage;
-        this.detail = detail;
-        this.subImage = subImage;
-        this.price = price;
-        this.stock = stock;
-        this.status = status;
-        this.createTime = createTime;
-        this.updateTime = updateTime;
+    public String getParentCategoryId() {
+        return parentCategoryId;
     }
 
-    public Product() {
-        super();
+    public void setParentCategoryId(String parentCategoryId) {
+        this.parentCategoryId = parentCategoryId;
+    }
+
+    public String getImageHost() {
+        return imageHost;
+    }
+
+    public void setImageHost(String imageHost) {
+        this.imageHost = imageHost;
     }
 
     public Integer getId() {
@@ -78,7 +85,7 @@ public class Product {
     }
 
     public void setName(String name) {
-        this.name = name == null ? null : name.trim();
+        this.name = name;
     }
 
     public String getSubTitle() {
@@ -86,7 +93,7 @@ public class Product {
     }
 
     public void setSubTitle(String subTitle) {
-        this.subTitle = subTitle == null ? null : subTitle.trim();
+        this.subTitle = subTitle;
     }
 
     public String getMainImage() {
@@ -94,7 +101,7 @@ public class Product {
     }
 
     public void setMainImage(String mainImage) {
-        this.mainImage = mainImage == null ? null : mainImage.trim();
+        this.mainImage = mainImage;
     }
 
     public String getDetail() {
@@ -102,7 +109,7 @@ public class Product {
     }
 
     public void setDetail(String detail) {
-        this.detail = detail == null ? null : detail.trim();
+        this.detail = detail;
     }
 
     public String getSubImage() {
@@ -110,7 +117,7 @@ public class Product {
     }
 
     public void setSubImage(String subImage) {
-        this.subImage = subImage == null ? null : subImage.trim();
+        this.subImage = subImage;
     }
 
     public BigDecimal getPrice() {
@@ -137,19 +144,19 @@ public class Product {
         this.status = status;
     }
 
-    public Date getCreateTime() {
-        return createTime;
-    }
-
-    public void setCreateTime(Date createTime) {
-        this.createTime = createTime;
-    }
-
-    public Date getUpdateTime() {
-        return updateTime;
-    }
-
-    public void setUpdateTime(Date updateTime) {
-        this.updateTime = updateTime;
+    @Override
+    public String toString() {
+        return "ProductDetailVO{" +
+                "id=" + id +
+                ", categoryId=" + categoryId +
+                ", name='" + name + '\'' +
+                ", subTitle='" + subTitle + '\'' +
+                ", mainImage='" + mainImage + '\'' +
+                ", detail='" + detail + '\'' +
+                ", subImage='" + subImage + '\'' +
+                ", price=" + price +
+                ", stock=" + stock +
+                ", status=" + status +
+                '}';
     }
 }

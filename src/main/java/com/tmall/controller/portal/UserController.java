@@ -1,16 +1,15 @@
 package com.tmall.controller.portal;
 
 import com.tmall.common.constant.Euser;
-import com.tmall.common.validatorOrder.Login;
-import com.tmall.common.validatorOrder.Register;
-import com.tmall.common.validatorOrder.ResetPassword;
+import com.tmall.common.validatorOrder.user.Login;
+import com.tmall.common.validatorOrder.user.Register;
+import com.tmall.common.validatorOrder.user.ResetPassword;
 import com.tmall.entity.po.User;
 import com.tmall.entity.vo.JSONObject;
 import com.tmall.security.LoginToken;
 import com.tmall.service.IUserService;
 import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.authc.UnknownAccountException;
-import org.apache.shiro.authc.UsernamePasswordToken;
 import org.apache.shiro.authz.annotation.RequiresAuthentication;
 import org.apache.shiro.cache.CacheManager;
 import org.apache.shiro.subject.Subject;
