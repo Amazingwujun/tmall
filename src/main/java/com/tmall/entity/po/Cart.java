@@ -1,20 +1,27 @@
 package com.tmall.entity.po;
 
-import java.io.Serializable;
+import com.tmall.common.validatorOrder.cart.Add;
+import com.tmall.common.validatorOrder.cart.Update;
+
+import javax.validation.constraints.NotNull;
 import java.math.BigDecimal;
 import java.util.Date;
 
 public class Cart {
+
+    @NotNull(message = "购物车ID不能为空",groups = {Update.class})
     private Integer id;
 
     private Integer userId;
 
+    @NotNull(message = "产品ID不能为空", groups = {Add.class, Update.class})
     private Integer productId;
 
     private String productName;
 
     private BigDecimal price;
 
+    @NotNull(message = "产品数量不能为空", groups = {Add.class, Update.class})
     private Integer quantity;
 
     private String mainImage;
@@ -27,7 +34,8 @@ public class Cart {
 
     private Date updateTime;
 
-    public Cart(Integer id, Integer userId, Integer productId, String productName, BigDecimal price, Integer quantity, String mainImage, BigDecimal totalPrice, Integer checked, Date createTime, Date updateTime) {
+    public Cart(Integer id, Integer userId, Integer productId, String productName, BigDecimal price, Integer quantity,
+                String mainImage, BigDecimal totalPrice, Integer checked, Date createTime, Date updateTime) {
         this.id = id;
         this.userId = userId;
         this.productId = productId;

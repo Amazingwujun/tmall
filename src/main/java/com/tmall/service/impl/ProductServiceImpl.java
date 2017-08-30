@@ -84,11 +84,26 @@ public class ProductServiceImpl implements IProductService {
      * @return
      */
     @Override
-    public List listByCategoryId(Integer categoryId, String orderBy, Integer pageNum, Integer pageSize) {
+    public PageInfo listByCategoryId(Integer categoryId, String orderBy, Integer pageNum, Integer pageSize) {
+        Assert.notNull(categoryId,"分类ID不能为空");
+        //开始分页
+        PageHelper.startPage(pageNum, pageSize);
 
+        //排序
+        if (StringUtils.hasText(orderBy)) {
+            int index = orderBy.indexOf("_");
+            orderBy = orderBy.substring(0, index) +" "+ orderBy.substring(index + 1);
+            PageHelper.orderBy(orderBy);
+        }
 
+        List<Product> products = productDao.listByCategoryId(categoryId);
 
-        return null;
+        PageInfo<Product> pageInfo = new PageInfo<>(products);
+
+        List productListVO = assembleProductListVO(products);
+        pageInfo.setList(productListVO);
+
+        return pageInfo;
     }
 
     /**

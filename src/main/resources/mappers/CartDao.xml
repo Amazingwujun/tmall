@@ -34,11 +34,11 @@
     insert into tmall_cart (id, userId, productId, 
       productName, price, quantity, 
       mainImage, totalPrice, checked, 
-      createTime, updateTime)
+      createTime)
     values (#{id,jdbcType=INTEGER}, #{userId,jdbcType=INTEGER}, #{productId,jdbcType=INTEGER}, 
       #{productName,jdbcType=VARCHAR}, #{price,jdbcType=DECIMAL}, #{quantity,jdbcType=INTEGER}, 
       #{mainImage,jdbcType=VARCHAR}, #{totalPrice,jdbcType=DECIMAL}, #{checked,jdbcType=INTEGER}, 
-      #{createTime,jdbcType=TIMESTAMP}, #{updateTime,jdbcType=TIMESTAMP})
+      now())
   </insert>
   <insert id="insertSelective" parameterType="com.tmall.entity.po.Cart" >
     insert into tmall_cart
@@ -70,12 +70,8 @@
       <if test="checked != null" >
         checked,
       </if>
-      <if test="createTime != null" >
-        createTime,
-      </if>
-      <if test="updateTime != null" >
-        updateTime,
-      </if>
+        createTime
+
     </trim>
     <trim prefix="values (" suffix=")" suffixOverrides="," >
       <if test="id != null" >
@@ -105,12 +101,7 @@
       <if test="checked != null" >
         #{checked,jdbcType=INTEGER},
       </if>
-      <if test="createTime != null" >
-        #{createTime,jdbcType=TIMESTAMP},
-      </if>
-      <if test="updateTime != null" >
-        #{updateTime,jdbcType=TIMESTAMP},
-      </if>
+        now()
     </trim>
   </insert>
   <update id="updateByPrimaryKeySelective" parameterType="com.tmall.entity.po.Cart" >
@@ -140,12 +131,6 @@
       <if test="checked != null" >
         checked = #{checked,jdbcType=INTEGER},
       </if>
-      <if test="createTime != null" >
-        createTime = #{createTime,jdbcType=TIMESTAMP},
-      </if>
-      <if test="updateTime != null" >
-        updateTime = #{updateTime,jdbcType=TIMESTAMP},
-      </if>
     </set>
     where id = #{id,jdbcType=INTEGER}
   </update>
@@ -158,9 +143,26 @@
       quantity = #{quantity,jdbcType=INTEGER},
       mainImage = #{mainImage,jdbcType=VARCHAR},
       totalPrice = #{totalPrice,jdbcType=DECIMAL},
-      checked = #{checked,jdbcType=INTEGER},
-      createTime = #{createTime,jdbcType=TIMESTAMP},
-      updateTime = #{updateTime,jdbcType=TIMESTAMP}
+      checked = #{checked,jdbcType=INTEGER}
     where id = #{id,jdbcType=INTEGER}
   </update>
+
+  <select id="selectCartVoListByUserId" parameterType="integer" resultType="com.tmall.entity.vo.CartVO">
+    SELECT
+      c.id 'id',
+      c.userId 'userId',
+      c.productId 'productId',
+      c.quantity 'quantity',
+      c.productName 'productName',
+      p.subTitle 'productSubtitle',
+      p.mainImage 'productMainImage',
+      c.price 'productPrice',
+      p.status 'productStatus',
+      c.totalPrice 'productTotalPrice',
+      p.stock 'productStock',
+      c.checked 'productChecked'
+    FROM tmall_cart c INNER JOIN tmall_product p ON c.productId = p.id
+    WHERE c.userId = #{userId}
+  </select>
+
 </mapper>

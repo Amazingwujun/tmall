@@ -2,10 +2,9 @@ package com.tmall.controller.portal;
 
 
 import com.github.pagehelper.PageInfo;
-import com.tmall.entity.vo.JSONObject;
+import com.tmall.entity.vo.ReturnBean;
 import com.tmall.entity.vo.ProductDetailVO;
 import com.tmall.service.IProductService;
-import org.springframework.beans.factory.NoUniqueBeanDefinitionException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
@@ -25,16 +24,16 @@ public class ProductController {
     /**
      * 根据产品ID获取产品细节
      *
-     * @param productId
+     * @param productId 产品ID
      * @return
      */
     @RequestMapping(value = "{productId}/detail", method = {RequestMethod.GET})
-    public JSONObject detail(@PathVariable("productId") Integer productId) {
+    public ReturnBean detail(@PathVariable("productId") Integer productId) {
 
         ProductDetailVO productDetailVO = productService.getProductDetail(productId);
 
         return productDetailVO == null || productDetailVO.getStatus() != 0 ?
-                JSONObject.error("产品不存在或已下架", 1) : JSONObject.success("产品查询成功", productDetailVO);
+                ReturnBean.error("产品不存在或已下架", 1) : ReturnBean.success("产品查询成功", productDetailVO);
     }
 
     /**
@@ -47,14 +46,15 @@ public class ProductController {
      * @return
      */
     @RequestMapping("listByCategoryId")
-    public JSONObject listByCategoryId(Integer categoryId,
+    public ReturnBean listByCategoryId(Integer categoryId,
                                        @RequestParam(required = false) String orderBy,
                                        @RequestParam(required = false, defaultValue = "1") Integer pageNum,
                                        @RequestParam(required = false, defaultValue = "10") Integer pageSize) {
+        if (categoryId == null) return ReturnBean.error("查询参数异常", 1);
 
-        productService.listByCategoryId(categoryId, orderBy, pageNum, pageSize);
+        PageInfo pageInfo = productService.listByCategoryId(categoryId, orderBy, pageNum, pageSize);
 
-        return null;
+        return ReturnBean.success(null,pageInfo);
     }
 
     /**
@@ -67,16 +67,16 @@ public class ProductController {
      * @return
      */
     @RequestMapping("listByKeywords")
-    public JSONObject listByKeywords(String keywords,
+    public ReturnBean listByKeywords(String keywords,
                                      @RequestParam(required = false) String orderBy,
                                      @RequestParam(required = false, defaultValue = "1") Integer pageNum,
                                      @RequestParam(required = false, defaultValue = "10") Integer pageSize) {
         if (!StringUtils.hasText(keywords) || (orderBy != null && !orderBy.matches("[A-Za-z]+_((desc)|(asc))"))) {
-            return JSONObject.error("查询参数异常", 1);
+            return ReturnBean.error("查询参数异常", 1);
         }
 
         PageInfo pageInfo = productService.listByKeywords(keywords, orderBy, pageNum, pageSize);
-        return JSONObject.success(null, pageInfo);
+        return ReturnBean.success(null, pageInfo);
     }
 
 

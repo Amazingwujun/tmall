@@ -32,5 +32,5 @@ public interface IProductService {
      * @param pageSize
      * @return
      */
-    List listByCategoryId(Integer categoryId, String orderBy, Integer pageNum, Integer pageSize);
+    PageInfo listByCategoryId(Integer categoryId, String orderBy, Integer pageNum, Integer pageSize);
 }

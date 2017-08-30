@@ -7,7 +7,7 @@ import com.alibaba.fastjson.annotation.JSONField;
  * 服务器基本响应对象
  *
  */
-public class JSONObject {
+public class ReturnBean {
     
     private static final int SUCCESS_CODE = 0;
     
@@ -20,24 +20,24 @@ public class JSONObject {
     @JSONField(serialize = false)
     private boolean isSuccess;
 
-    public JSONObject(){}
+    public ReturnBean(){}
 
-    public JSONObject(String msg, Object data, int code) {
+    public ReturnBean(String msg, Object data, int code) {
         this.msg = msg;
         this.data = data;
         this.code = code;
     }
 
-    public static JSONObject success(String msg, Object data) {
-        return new JSONObject(msg, data, SUCCESS_CODE);
+    public static ReturnBean success(String msg, Object data) {
+        return new ReturnBean(msg, data, SUCCESS_CODE);
     }
 
-    public static JSONObject successWithMessage(String msg) {
-        return new JSONObject(msg, null, SUCCESS_CODE);
+    public static ReturnBean successWithMessage(String msg) {
+        return new ReturnBean(msg, null, SUCCESS_CODE);
     }
 
-    public static JSONObject error(String msg,int code) {
-        return new JSONObject(msg, null, code);
+    public static ReturnBean error(String msg, int code) {
+        return new ReturnBean(msg, null, code);
     }
     
     public boolean isSuccess() {
@@ -74,7 +74,7 @@ public class JSONObject {
 
     @Override
     public String toString() {
-        return "JSONObject{" +
+        return "ReturnBean{" +
                 "msg='" + msg + '\'' +
                 ", data=" + data +
                 ", code=" + code +

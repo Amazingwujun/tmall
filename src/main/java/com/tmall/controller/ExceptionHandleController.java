@@ -1,7 +1,7 @@
 package com.tmall.controller;
 
 
-import com.tmall.entity.vo.JSONObject;
+import com.tmall.entity.vo.ReturnBean;
 import org.apache.shiro.authc.*;
 import org.apache.shiro.authz.UnauthenticatedException;
 import org.slf4j.Logger;
@@ -31,10 +31,10 @@ public class ExceptionHandleController {
      *
      * @param request
      * @param response
-     * @return JSONObject
+     * @return ReturnBean
      */
     @ExceptionHandler(AuthenticationException.class)
-    public JSONObject authenticationExceptionHandel(AuthenticationException e, HttpServletRequest request,
+    public ReturnBean authenticationExceptionHandel(AuthenticationException e, HttpServletRequest request,
                                                     HttpServletResponse response) {
         log.debug(e.getMessage(), e);
 
@@ -55,35 +55,35 @@ public class ExceptionHandleController {
             msg = "未知异常,登录失败";
         }
 
-        return JSONObject.error(msg, 1);
+        return ReturnBean.error(msg, 1);
     }
 
     /**
      * 未登录异常
      *
      * @param e
-     * @return JSONObject
+     * @return ReturnBean
      */
     @ExceptionHandler(UnauthenticatedException.class)
-    public JSONObject unAuthenticationExceptionHandle(UnauthenticatedException e) {
+    public ReturnBean unAuthenticationExceptionHandle(UnauthenticatedException e) {
         log.debug(e.getMessage(), e);
 
-        return JSONObject.error("用户未登录或认证", 1);
+        return ReturnBean.error("用户未登录或认证", 1);
     }
 
     /**
      * 数据校检异常
      *
      * @param e
-     * @return JSONObject
+     * @return ReturnBean
      */
     @ExceptionHandler(BindException.class)
-    public JSONObject validExceptionHandle(BindException e) {
+    public ReturnBean validExceptionHandle(BindException e) {
         log.debug(e.getMessage(), e);
 
         String message = getMessage(e);
 
-        return JSONObject.error(message, 1);
+        return ReturnBean.error(message, 1);
     }
 
     /**
@@ -92,15 +92,26 @@ public class ExceptionHandleController {
      * {@link MethodArgumentNotValidException}
      *
      * @param e
-     * @return JSONObject
+     * @return ReturnBean
      */
     @ExceptionHandler(MethodArgumentNotValidException.class)
-    public JSONObject methodArgumentNotValidExceptionHandle(MethodArgumentNotValidException e) {
+    public ReturnBean methodArgumentNotValidExceptionHandle(MethodArgumentNotValidException e) {
         log.debug(e.getMessage(), e);
 
         String message = getMessage(e);
 
-        return JSONObject.error(message, 1);
+        return ReturnBean.error(message, 1);
+    }
+
+    /**
+     * 捕获所有异常
+     *
+     * @return
+     */
+    @ExceptionHandler(Throwable.class)
+    public ReturnBean throwableHandle(Throwable e){
+        log.debug(e.getMessage(),e);
+        return ReturnBean.error("未知异常,请查看日志信息", 1);
     }
 
     /**

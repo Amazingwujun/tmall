@@ -3,7 +3,7 @@ package com.tmall.controller.manage;
 import com.tmall.common.validatorOrder.category.Add;
 import com.tmall.common.validatorOrder.category.Update;
 import com.tmall.entity.po.Category;
-import com.tmall.entity.vo.JSONObject;
+import com.tmall.entity.vo.ReturnBean;
 import com.tmall.service.ICategoryService;
 import org.apache.shiro.authz.annotation.RequiresRoles;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,13 +31,13 @@ public class CategoryController {
      */
     @RequiresRoles("admin")
     @RequestMapping("add")
-    public JSONObject add(@Validated(Add.class) Category category) {
+    public ReturnBean add(@Validated(Add.class) Category category) {
         if (category.getParentId() == null) {
             category.setParentId(0);
         }
 
         boolean result = categoryService.addCategory(category);
-        return result ? JSONObject.successWithMessage("新增品类成功") : JSONObject.error("新增品类失败", 1);
+        return result ? ReturnBean.successWithMessage("新增品类成功") : ReturnBean.error("新增品类失败", 1);
     }
 
     /**
@@ -48,10 +48,10 @@ public class CategoryController {
      */
     @RequiresRoles("admin")
     @RequestMapping("update")
-    public JSONObject update(@Validated(Update.class) Category category) {
+    public ReturnBean update(@Validated(Update.class) Category category) {
         boolean result = categoryService.updateCategory(category);
 
-        return result ? JSONObject.successWithMessage("更新品类成功") : JSONObject.error("更新品类失败", 1);
+        return result ? ReturnBean.successWithMessage("更新品类成功") : ReturnBean.error("更新品类失败", 1);
     }
 
     /**
@@ -62,10 +62,10 @@ public class CategoryController {
      */
     @RequiresRoles("admin")
     @RequestMapping("{categoryId}/getSubCategory")
-    public JSONObject getSubCategory(@PathVariable("categoryId") Integer categoryId) {
+    public ReturnBean getSubCategory(@PathVariable("categoryId") Integer categoryId) {
         List<Category> categoryList = categoryService.getSubCategory(categoryId);
 
-        return JSONObject.success(null, categoryList);
+        return ReturnBean.success(null, categoryList);
     }
 
     /**
@@ -76,13 +76,13 @@ public class CategoryController {
      */
     @RequiresRoles("admin")
     @RequestMapping("{categoryId}/getAllCategory")
-    public JSONObject getAllCategory(@PathVariable("categoryId") Integer categoryId) {
+    public ReturnBean getAllCategory(@PathVariable("categoryId") Integer categoryId) {
         List<Category> resultList = new ArrayList<>();
 
         List<Category> result = categoryService.getSubCategory(categoryId);
         recursive(result,resultList);
 
-        return JSONObject.success(null, resultList);
+        return ReturnBean.success(null, resultList);
     }
 
     /**

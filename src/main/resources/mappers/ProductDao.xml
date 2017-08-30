@@ -183,4 +183,19 @@
         FROM tmall_product
         WHERE status = 0 AND name LIKE #{keywords}
     </select>
+
+    <select id="listByCategoryId" resultMap="BaseResultMap">
+        SELECT
+        <include refid="Base_Column_List"/>
+        FROM tmall_product
+        WHERE status=0 AND categoryId = #{categoryId}
+    </select>
+
+    <select id="selectByIdWithOnSale" resultMap="BaseResultMap" parameterType="integer">
+      SELECT
+      <include refid="Base_Column_List"/>
+      FROM tmall_product
+      WHERE status = 0 AND id = #{productId}
+    </select>
+
 </mapper>

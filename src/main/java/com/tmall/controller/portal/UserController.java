@@ -5,7 +5,7 @@ import com.tmall.common.validatorOrder.user.Login;
 import com.tmall.common.validatorOrder.user.Register;
 import com.tmall.common.validatorOrder.user.ResetPassword;
 import com.tmall.entity.po.User;
-import com.tmall.entity.vo.JSONObject;
+import com.tmall.entity.vo.ReturnBean;
 import com.tmall.security.LoginToken;
 import com.tmall.service.IUserService;
 import org.apache.shiro.SecurityUtils;
@@ -39,10 +39,10 @@ public class UserController {
      * 用户登录,登录异常全部交给{@link com.tmall.controller.ExceptionHandleController} 处理
      *
      * @param user
-     * @return JSONObject
+     * @return ReturnBean
      */
     @RequestMapping("login")
-    public JSONObject login(@Validated(Login.class) User user,@RequestParam(required = false,defaultValue = "false") boolean rememberMe) {
+    public ReturnBean login(@Validated(Login.class) User user, @RequestParam(required = false,defaultValue = "false") boolean rememberMe) {
         LoginToken token;   //登录令牌
 
         if (StringUtils.hasText(user.getUsername())) {
@@ -52,16 +52,17 @@ public class UserController {
         } else if (StringUtils.hasText(user.getPhone())) {
             token = new LoginToken(user.getPhone(), user.getPassword(), Euser.PHONE.getKey());
         } else {
-            return JSONObject.error("登录令牌不能为空", 1);
+            return ReturnBean.error("登录令牌不能为空", 1);
         }
 
         token.setRememberMe(rememberMe); //记住登录状态
         Subject subject = SecurityUtils.getSubject();
         if (subject.isAuthenticated()) {
-            return JSONObject.successWithMessage("用户已登录");
+            return ReturnBean.successWithMessage("用户已登录");
         }
 
         subject.login(token); /*异常抛到 {@code ExceptionHandleController 处理}*/
+        subject.getSession().setAttribute("userId",user.getId()); // 将用户ID保存到session,方便取得
         log.debug("用户:{} 登录成功", user.getUsername());
 
         User returnUser = userService.getUserByUsername(user.getUsername());
@@ -71,7 +72,7 @@ public class UserController {
 
         returnUser.setPassword("");
         returnUser.setPhone(phoneDigest(returnUser.getPhone()));
-        return JSONObject.success("login success", returnUser);
+        return ReturnBean.success("login success", returnUser);
     }
 
     /**
@@ -91,19 +92,19 @@ public class UserController {
     /**
      * 用户注销
      *
-     * @return JSONObject
+     * @return ReturnBean
      */
     @RequestMapping("logout")
-    public JSONObject logout() {
+    public ReturnBean logout() {
         Subject subject = SecurityUtils.getSubject();
         if (subject.getPrincipal() == null) {
-            return JSONObject.successWithMessage("用户已经注销");
+            return ReturnBean.successWithMessage("用户已经注销");
         }
 
         subject.logout();
         log.debug("用户:{} 注销成功", subject.getPrincipal());
 
-        return JSONObject.successWithMessage("注销成功");
+        return ReturnBean.successWithMessage("注销成功");
     }
 
     /**
@@ -113,12 +114,12 @@ public class UserController {
      * @return
      */
     @RequestMapping("register")
-    public JSONObject register(@Validated(Register.class) User user) {
+    public ReturnBean register(@Validated(Register.class) User user) {
         log.debug("用户:{} 开始注册", user.getUsername());
 
         user.setRole(2);//普通用户角色
         boolean result = userService.register(user);
-        return result ? JSONObject.successWithMessage("注册成功") : JSONObject.error("注册失败", 1);
+        return result ? ReturnBean.successWithMessage("注册成功") : ReturnBean.error("注册失败", 1);
     }
 
     /**
@@ -129,14 +130,14 @@ public class UserController {
      * @return
      */
     @RequestMapping("checkUserExist")
-    public JSONObject checkUserExist(String query, Integer type) {
+    public ReturnBean checkUserExist(String query, Integer type) {
         if (!StringUtils.hasText(query) || type == null) {
-            return JSONObject.error("参数异常", 1);
+            return ReturnBean.error("参数异常", 1);
         }
 
         boolean userExist = userService.userExist(query, type);
 
-        return userExist ? JSONObject.successWithMessage("用户已经存在") : JSONObject.error("用户不存在", 1);
+        return userExist ? ReturnBean.successWithMessage("用户已经存在") : ReturnBean.error("用户不存在", 1);
     }
 
     /**
@@ -145,13 +146,13 @@ public class UserController {
      * @return
      */
     @RequestMapping("getUserInfo")
-    public JSONObject getUserInfo() {
+    public ReturnBean getUserInfo() {
         Subject subject = SecurityUtils.getSubject();
 
         String username = (String) subject.getPrincipal();
 
         if (username == null) {
-            return JSONObject.successWithMessage("用户未登录,无法获取用户信息");
+            return ReturnBean.successWithMessage("用户未登录,无法获取用户信息");
         }
 
         User user = userService.getUserByUsername(username);
@@ -161,7 +162,7 @@ public class UserController {
 
         user.setPassword("");
         user.setPhone(phoneDigest(user.getPhone()));
-        return JSONObject.success(null, user);
+        return ReturnBean.success(null, user);
     }
 
     /**
@@ -172,13 +173,13 @@ public class UserController {
      * @return
      */
     @RequestMapping("emailValidate")
-    public JSONObject emailValidate(String username, String token) {
+    public ReturnBean emailValidate(String username, String token) {
         if (!StringUtils.hasText(username) || !StringUtils.hasText(token)) {
-            return JSONObject.error("参数异常", 1);
+            return ReturnBean.error("参数异常", 1);
         }
         boolean result = userService.emailValidate(username, token, cacheManager.getCache("COMMON_CACHE"));
 
-        return result ? JSONObject.successWithMessage("邮箱验证成功") : JSONObject.error("邮箱验证失败", 1);
+        return result ? ReturnBean.successWithMessage("邮箱验证成功") : ReturnBean.error("邮箱验证失败", 1);
     }
 
     /**
@@ -189,19 +190,19 @@ public class UserController {
      * @return
      */
     @RequestMapping("forgetPassword")
-    public JSONObject forgetPassword(String key, Integer type) {
+    public ReturnBean forgetPassword(String key, Integer type) {
         if (!StringUtils.hasText(key) || type == null) {
-            return JSONObject.error("参数异常", 1);
+            return ReturnBean.error("参数异常", 1);
         }
 
         //判断查询参数是否存在
         boolean userExist = userService.userExist(key, type);
         if (!userExist) {
-            return JSONObject.error("用户名或邮箱不存在", 1);
+            return ReturnBean.error("用户名或邮箱不存在", 1);
         }
 
         boolean result = userService.forgetPassword(key, type);
-        return result ? JSONObject.successWithMessage("邮件发送成功") : JSONObject.error("邮件发送失败", 1);
+        return result ? ReturnBean.successWithMessage("邮件发送成功") : ReturnBean.error("邮件发送失败", 1);
     }
 
     /**
@@ -212,12 +213,12 @@ public class UserController {
      * @return
      */
     @RequestMapping("resetPassword")
-    public JSONObject resetPassword(@Validated(ResetPassword.class) User user, String token) {
-        if (!StringUtils.hasText(token)) return JSONObject.error("token为空,无法重置密码", 1);
+    public ReturnBean resetPassword(@Validated(ResetPassword.class) User user, String token) {
+        if (!StringUtils.hasText(token)) return ReturnBean.error("token为空,无法重置密码", 1);
 
         boolean result = userService.resetPassword(user.getUsername(), user.getPassword(), token);
 
-        return result ? JSONObject.successWithMessage("密码重置成功") : JSONObject.error("密码重置失败", 1);
+        return result ? ReturnBean.successWithMessage("密码重置成功") : ReturnBean.error("密码重置失败", 1);
     }
 
     /**
@@ -229,14 +230,14 @@ public class UserController {
      */
     @RequiresAuthentication
     @RequestMapping("onlineResetPassword")
-    public JSONObject onlineResetPassword(String newPassword, String oldPassword) {
+    public ReturnBean onlineResetPassword(String newPassword, String oldPassword) {
         if (!StringUtils.hasText(newPassword) || !StringUtils.hasText(oldPassword) || newPassword.length() < 6) {
-            return JSONObject.error("参数异常", 1);
+            return ReturnBean.error("参数异常", 1);
         }
 
         String username = (String) SecurityUtils.getSubject().getPrincipal();
         boolean result = userService.onlineResetPassword(username, newPassword, oldPassword);
 
-        return result ? JSONObject.successWithMessage("密码修改成功") : JSONObject.error("密码修改失败", 1);
+        return result ? ReturnBean.successWithMessage("密码修改成功") : ReturnBean.error("密码修改失败", 1);
     }
 }
